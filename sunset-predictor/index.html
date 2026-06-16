@@ -16,13 +16,10 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="assets/icon.svg">
 
-  <!-- Tailwind CSS CDN -->
-  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
-
   <!-- Leaflet CSS CDN -->
   <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
 
-  <!-- Tailwind Config (inline, no defer) -->
+  <!-- Tailwind Config (MUST be before Tailwind CDN) -->
   <script>
     tailwind.config = {
       theme: {
@@ -61,12 +58,11 @@
     };
   </script>
 
+  <!-- Tailwind CSS CDN (load ONCE, after config) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <!-- Inline Styles -->
   <style>
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
-
     /* Leaflet overrides for dark theme */
     .leaflet-container {
       background: #1e293b;
@@ -105,7 +101,11 @@
       background: #64748b;
     }
 
-    /* Card skeleton loading */
+    /* Card skeleton loading pulse */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
     .card-skeleton {
       background: rgba(30, 41, 59, 0.5);
       border: 1px solid rgba(51, 65, 85, 0.5);
