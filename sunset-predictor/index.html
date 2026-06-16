@@ -105,6 +105,21 @@
       background: #64748b;
     }
 
+    /* Card skeleton loading */
+    .card-skeleton {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 12px;
+      padding: 16px;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Glass card effect */
+    .glass-card {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
     /* Smooth transitions */
     * {
       -webkit-tap-highlight-color: transparent;
@@ -190,6 +205,12 @@
   <!-- Application Code (deferred) -->
   <script defer>
     // ====== Location Module ======
+// Simple HTML escape
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
 const LocationModule = {
   state: {
     latitude: null,
@@ -250,6 +271,10 @@ const LocationModule = {
 
   // Set location and trigger data refresh
   async setLocation(lat, lng) {
+    // Validate coordinates
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      throw new Error('无效的坐标');
+    }
     this.state.latitude = lat;
     this.state.longitude = lng;
     this.state.cityName = await this.reverseGeocode(lat, lng);
@@ -870,12 +895,21 @@ const ScoringModule = {
           try {
             const results = await LocationModule.searchCity(query);
             const container = document.getElementById('searchResults');
-            container.innerHTML = results.slice(0, 5).map(r =>
+            container.innerHTML = results.slice(0, 5).map((r, i) =>
               `<button class="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-700/50 transition"
-                        onclick="App.selectSearchResult(${parseFloat(r.lat)}, ${parseFloat(r.lon)}, '${r.display_name.replace(/'/g, "\\'")}')">
-                 ${r.display_name}
+                        data-lat="${parseFloat(r.lat)}" data-lng="${parseFloat(r.lon)}" data-idx="${i}">
+                 ${escapeHtml(r.display_name)}
                </button>`
             ).join('');
+            // Attach click listeners
+            container.querySelectorAll('button').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const lat = parseFloat(btn.dataset.lat);
+                const lng = parseFloat(btn.dataset.lng);
+                const name = results[parseInt(btn.dataset.idx)].display_name;
+                App.selectSearchResult(lat, lng, name);
+              });
+            });
           } catch {
             document.getElementById('searchResults').innerHTML =
               '<p class="text-xs text-slate-500">搜索失败，请重试</p>';
