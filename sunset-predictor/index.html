@@ -112,7 +112,75 @@
   </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen">
-  <div id="app"></div>
+  <div id="app" class="min-h-screen pb-8">
+    <!-- Header / Location Bar -->
+    <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+      <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div class="text-2xl">🌅</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <span id="locationName" class="text-sm font-medium truncate">定位中...</span>
+            <span id="loadingSpinner" class="inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></span>
+          </div>
+          <p id="locationCoords" class="text-xs text-slate-400"></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="searchToggle" class="p-2 rounded-lg hover:bg-slate-800 transition" title="搜索地点">
+            <i data-lucide="search" class="w-5 h-5"></i>
+          </button>
+          <button id="mapToggle" class="p-2 rounded-lg hover:bg-slate-800 transition" title="地图选点">
+            <i data-lucide="map" class="w-5 h-5"></i>
+          </button>
+          <button id="locateBtn" class="p-2 rounded-lg hover:bg-slate-800 transition" title="重新定位">
+            <i data-lucide="crosshair" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+      <!-- Search Panel (hidden by default) -->
+      <div id="searchPanel" class="hidden max-w-4xl mx-auto px-4 pb-3">
+        <div class="relative">
+          <input type="text" id="searchInput" placeholder="输入城市名，如 杭州、上海、黄山..."
+                 class="w-full bg-slate-800 text-white rounded-lg px-4 py-2.5 pl-10 text-sm border border-slate-700 focus:border-amber-500 focus:outline-none">
+          <i data-lucide="search" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
+        </div>
+        <div id="searchResults" class="mt-2 space-y-1"></div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
+      <!-- Error banner -->
+      <div id="errorBanner" class="hidden bg-red-500/20 border border-red-500/30 rounded-xl p-4 text-sm text-red-300">
+        <span id="errorMessage"></span>
+        <button id="retryBtn" class="ml-2 underline">重试</button>
+      </div>
+
+      <!-- Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div id="card-sunrise-today" class="card-skeleton">加载中...</div>
+        <div id="card-sunset-today" class="card-skeleton">加载中...</div>
+        <div id="card-sunrise-tomorrow" class="card-skeleton">加载中...</div>
+        <div id="card-sunset-tomorrow" class="card-skeleton">加载中...</div>
+      </div>
+
+      <!-- Factor Detail Panel -->
+      <div id="factorPanel" class="hidden bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+        <h3 class="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i> 详细因子分析
+        </h3>
+        <div id="factorContent" class="space-y-2"></div>
+      </div>
+
+      <!-- Map Panel (hidden by default) -->
+      <div id="mapPanel" class="hidden rounded-xl overflow-hidden border border-slate-700" style="height: 400px;">
+        <div id="map" class="w-full h-full"></div>
+      </div>
+    </main>
+
+    <footer class="max-w-4xl mx-auto px-4 mt-8 text-center text-xs text-slate-500">
+      <p>数据来源: <a href="https://open-meteo.com" class="underline hover:text-slate-300" target="_blank">Open-Meteo</a> · <a href="https://github.com/mourner/suncalc" class="underline hover:text-slate-300" target="_blank">SunCalc</a></p>
+      <p class="mt-1">免费开源 · 风光摄影师专用工具</p>
+    </footer>
+  </div>
 
   <!-- Third-party libraries (deferred) -->
   <script defer src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
@@ -589,6 +657,143 @@ const ScoringModule = {
   }
 };
     // ====== UI Module ======
+    const UIModule = {
+      buildCard(title, emoji, period) {
+        if (!period || !period.score) {
+          return `
+            <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 backdrop-blur">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">${emoji}</span>
+                <h3 class="text-sm font-medium text-slate-300">${title}</h3>
+              </div>
+              <p class="text-slate-500 text-sm">数据加载中...</p>
+            </div>`;
+        }
+
+        const { score, level, label, description, color } = period;
+        const bgColor = ScoringModule.getBgColor(score);
+        const scoreBar = this.buildScoreBar(score);
+
+        return `
+          <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 backdrop-blur hover:border-slate-600/50 transition cursor-pointer ${bgColor}"
+               onclick="UIModule.showFactors('${title}')">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">${emoji}</span>
+                <h3 class="text-sm font-medium text-slate-300">${title}</h3>
+              </div>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-700/50 text-slate-400">${period.timeRange || ''}</span>
+            </div>
+            <div class="text-center py-2">
+              <span class="text-4xl font-bold ${color}">${score.toFixed(1)}</span>
+              <span class="text-slate-400 text-sm ml-1">/ 10</span>
+            </div>
+            ${scoreBar}
+            <div class="mt-2 text-center">
+              <span class="text-xs px-2 py-0.5 rounded-full ${this.getLevelBadgeClass(level)}">${label}</span>
+            </div>
+            <p class="mt-3 text-xs text-slate-400 leading-relaxed">${description || ''}</p>
+          </div>`;
+      },
+
+      buildScoreBar(score) {
+        const pct = (score / 10) * 100;
+        const color = score >= 7 ? 'bg-amber-400' : score >= 5 ? 'bg-yellow-400' : score >= 3 ? 'bg-orange-400' : 'bg-red-400';
+        return `
+          <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2">
+            <div class="${color} h-1.5 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+          </div>`;
+      },
+
+      getLevelBadgeClass(level) {
+        const map = {
+          'excellent': 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
+          'good': 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+          'fair': 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30',
+          'poor': 'bg-orange-500/20 text-orange-300 border border-orange-500/30',
+          'bad': 'bg-red-500/20 text-red-300 border border-red-500/30',
+          'nodata': 'bg-slate-500/20 text-slate-300 border border-slate-500/30'
+        };
+        return map[level] || map.nodata;
+      },
+
+      showFactors(title) {
+        const panel = document.getElementById('factorPanel');
+        const content = document.getElementById('factorContent');
+        panel.classList.remove('hidden');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Find the matching period key by title
+        const titleMap = { '今日朝霞': 'sunrise-today', '今日晚霞': 'sunset-today', '明日朝霞': 'sunrise-tomorrow', '明日晚霞': 'sunset-tomorrow' };
+        const periodKey = titleMap[title];
+        const period = App.getPeriodData(periodKey);
+        if (!period || !period.factors) return;
+
+        let html = `<p class="text-xs text-slate-500 mb-2">${title} 各因子评分</p>`;
+        const factorLabels = {
+          cloud: '☁️ 目标云量', offset: '☀️ 太阳方向', aqi: '🌫️ 空气质量',
+          visibility: '👁️ 能见度', rain: '🌧️ 降水加分', timeFit: '⏰ 时间贴合'
+        };
+        for (const [key, f] of Object.entries(period.factors)) {
+          const pct = (f.score || 0) * 100;
+          const label = factorLabels[key] || key;
+          let valueText = '';
+          if (f.value !== null && f.value !== undefined) {
+            valueText = key === 'visibility' ? `${(f.value/1000).toFixed(0)}km` :
+                        key === 'aqi' ? `${f.value}` :
+                        key === 'cloud' || key === 'offset' ? `${f.value}%` : '';
+          }
+          if (key === 'offset' && !f.hasData) valueText = '暂无数据';
+          html += `
+            <div class="flex items-center gap-3">
+              <span class="text-xs w-24 text-slate-400 shrink-0">${label}</span>
+              <div class="flex-1 bg-slate-700/50 rounded-full h-1.5">
+                <div class="bg-amber-400/70 h-1.5 rounded-full" style="width: ${pct}%"></div>
+              </div>
+              <span class="text-xs text-slate-400 w-16 text-right">${valueText}</span>
+            </div>`;
+        }
+        content.innerHTML = html;
+      },
+
+      updateCards(data) {
+        const periods = ['sunrise-today', 'sunset-today', 'sunrise-tomorrow', 'sunset-tomorrow'];
+        const titles = { 'sunrise-today': '今日朝霞', 'sunset-today': '今日晚霞', 'sunrise-tomorrow': '明日朝霞', 'sunset-tomorrow': '明日晚霞' };
+        const emojis = { 'sunrise-today': '🌅', 'sunset-today': '🌇', 'sunrise-tomorrow': '🌅', 'sunset-tomorrow': '🌇' };
+
+        for (const key of periods) {
+          const el = document.getElementById(`card-${key}`);
+          if (el) {
+            el.outerHTML = UIModule.buildCard(titles[key], emojis[key], data[key] || null);
+          }
+        }
+      },
+
+      showLoading() {
+        document.getElementById('loadingSpinner')?.classList.remove('hidden');
+      },
+
+      hideLoading() {
+        document.getElementById('loadingSpinner')?.classList.add('hidden');
+      },
+
+      showError(message) {
+        const banner = document.getElementById('errorBanner');
+        const msg = document.getElementById('errorMessage');
+        banner.classList.remove('hidden');
+        msg.textContent = message;
+      },
+
+      hideError() {
+        document.getElementById('errorBanner').classList.add('hidden');
+      },
+
+      updateLocationDisplay(name, lat, lng) {
+        document.getElementById('locationName').textContent = name;
+        document.getElementById('locationCoords').textContent =
+          `北纬 ${lat.toFixed(4)}° · 东经 ${lng.toFixed(4)}°`;
+      }
+    };
     // ====== Map Module ======
     const MapModule = {
       map: null,
@@ -632,6 +837,189 @@ const ScoringModule = {
       }
     };
     // ====== App Controller ======
+    const App = {
+      _dataCache: {},
+
+      async init() {
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+
+        document.getElementById('searchToggle')?.addEventListener('click', () => {
+          const panel = document.getElementById('searchPanel');
+          panel.classList.toggle('hidden');
+          if (!panel.classList.contains('hidden')) {
+            document.getElementById('searchInput')?.focus();
+          }
+        });
+
+        document.getElementById('mapToggle')?.addEventListener('click', () => {
+          MapModule.toggle();
+        });
+
+        document.getElementById('locateBtn')?.addEventListener('click', async () => {
+          LocationModule.init();
+        });
+
+        document.getElementById('searchInput')?.addEventListener('input', async (e) => {
+          const query = e.target.value.trim();
+          if (query.length < 2) {
+            document.getElementById('searchResults').innerHTML = '';
+            return;
+          }
+          try {
+            const results = await LocationModule.searchCity(query);
+            const container = document.getElementById('searchResults');
+            container.innerHTML = results.slice(0, 5).map(r =>
+              `<button class="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-700/50 transition"
+                        onclick="App.selectSearchResult(${parseFloat(r.lat)}, ${parseFloat(r.lon)}, '${r.display_name.replace(/'/g, "\\'")}')">
+                 ${r.display_name}
+               </button>`
+            ).join('');
+          } catch {
+            document.getElementById('searchResults').innerHTML =
+              '<p class="text-xs text-slate-500">搜索失败，请重试</p>';
+          }
+        });
+
+        document.getElementById('retryBtn')?.addEventListener('click', () => {
+          UIModule.hideError();
+          LocationModule.init();
+        });
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+          });
+        }
+
+        // Network status
+        window.addEventListener('online', () => {
+          UIModule.hideError();
+          LocationModule.init();
+        });
+        window.addEventListener('offline', () => {
+          UIModule.showError('网络已断开，显示可能不是最新数据');
+        });
+
+        await LocationModule.init();
+      },
+
+      selectSearchResult(lat, lng, name) {
+        LocationModule.state.cityName = name;
+        LocationModule.setLocation(lat, lng);
+        document.getElementById('searchPanel').classList.add('hidden');
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchResults').innerHTML = '';
+      },
+
+      async updateLocation(name, lat, lng) {
+        UIModule.showLoading();
+        UIModule.hideError();
+        UIModule.updateLocationDisplay(name, lat, lng);
+
+        try {
+          const today = new Date();
+          const tomorrow = new Date(today);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+
+          const todayTimes = SunCalcModule.getPhotoTimes(lat, lng, today);
+          const tomorrowTimes = SunCalcModule.getPhotoTimes(lat, lng, tomorrow);
+
+          if (!SunCalcModule.hasValidTimes(lat, lng, today)) {
+            UIModule.hideLoading();
+            UIModule.showError('该地区当前处于极昼或极夜，无日出/日落数据');
+            return;
+          }
+
+          const todayAz = SunCalcModule.getSunriseSunsetAzimuth(lat, lng, today);
+          const tomorrowAz = SunCalcModule.getSunriseSunsetAzimuth(lat, lng, tomorrow);
+
+          const todayData = await WeatherModule.fetchAll(
+            lat, lng,
+            todayTimes.morningGolden.start, todayTimes.eveningGolden.end,
+            todayAz.sunriseAzimuth, todayAz.sunsetAzimuth
+          );
+
+          let tomorrowData = null;
+          if (SunCalcModule.hasValidTimes(lat, lng, tomorrow)) {
+            tomorrowData = await WeatherModule.fetchAll(
+              lat, lng,
+              tomorrowTimes.morningGolden.start, tomorrowTimes.eveningGolden.end,
+              tomorrowAz.sunriseAzimuth, tomorrowAz.sunsetAzimuth
+            );
+          }
+
+          const todaySunrise = ScoringModule.calculate(
+            todayData.sunrise, todayData.weather, true,
+            todayTimes.morningGolden.start, todayAz.sunriseAzimuth
+          );
+          todaySunrise.timeRange = SunCalcModule.formatTime(todayTimes.morningGolden.start) +
+            '-' + SunCalcModule.formatTime(todayTimes.morningGolden.end);
+
+          const todaySunset = ScoringModule.calculate(
+            todayData.sunset, todayData.weather, false,
+            todayTimes.eveningGolden.end, todayAz.sunsetAzimuth
+          );
+          todaySunset.timeRange = SunCalcModule.formatTime(todayTimes.eveningGolden.start) +
+            '-' + SunCalcModule.formatTime(todayTimes.eveningGolden.end);
+
+          let tomorrowSunrise = null, tomorrowSunset = null;
+          if (tomorrowData) {
+            tomorrowSunrise = ScoringModule.calculate(
+              tomorrowData.sunrise, tomorrowData.weather, true,
+              tomorrowTimes.morningGolden.start, tomorrowAz.sunriseAzimuth
+            );
+            tomorrowSunrise.timeRange = SunCalcModule.formatTime(tomorrowTimes.morningGolden.start) +
+              '-' + SunCalcModule.formatTime(tomorrowTimes.morningGolden.end);
+
+            tomorrowSunset = ScoringModule.calculate(
+              tomorrowData.sunset, tomorrowData.weather, false,
+              tomorrowTimes.eveningGolden.end, tomorrowAz.sunsetAzimuth
+            );
+            tomorrowSunset.timeRange = SunCalcModule.formatTime(tomorrowTimes.eveningGolden.start) +
+              '-' + SunCalcModule.formatTime(tomorrowTimes.eveningGolden.end);
+          }
+
+          this._dataCache = {
+            'sunrise-today': todaySunrise,
+            'sunset-today': todaySunset,
+            'sunrise-tomorrow': tomorrowSunrise,
+            'sunset-tomorrow': tomorrowSunset
+          };
+
+          UIModule.updateCards(this._dataCache);
+          UIModule.hideLoading();
+
+          this._autoShowBestFactor();
+
+        } catch (err) {
+          UIModule.hideLoading();
+          UIModule.showError(`数据加载失败: ${err.message}`);
+        }
+      },
+
+      getPeriodData(key) {
+        return this._dataCache[key] || null;
+      },
+
+      _autoShowBestFactor() {
+        let bestKey = null, bestScore = -1;
+        for (const [key, data] of Object.entries(this._dataCache)) {
+          if (data && data.score > bestScore) {
+            bestScore = data.score;
+            bestKey = key;
+          }
+        }
+        if (bestKey) {
+          const titles = { 'sunrise-today': '今日朝霞', 'sunset-today': '今日晚霞', 'sunrise-tomorrow': '明日朝霞', 'sunset-tomorrow': '明日晚霞' };
+          UIModule.showFactors(titles[bestKey]);
+        }
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => App.init());
   </script>
 </body>
 </html>
