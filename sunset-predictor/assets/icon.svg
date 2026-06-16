@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="40%" stop-color="#7c2d12"/>
+      <stop offset="70%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="mountain1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="mountain2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky background -->
+  <rect width="100" height="100" fill="url(#sky)"/>
+
+  <!-- Sun (half circle rising above horizon) -->
+  <circle cx="50" cy="45" r="22" fill="url(#sun)" opacity="0.95"/>
+  <!-- Sun glow -->
+  <circle cx="50" cy="45" r="30" fill="#f59e0b" opacity="0.15"/>
+  <circle cx="50" cy="45" r="38" fill="#f59e0b" opacity="0.08"/>
+
+  <!-- Horizon line glow -->
+  <rect x="0" y="62" width="100" height="3" fill="#fcd34d" opacity="0.5"/>
+
+  <!-- Background mountains -->
+  <polygon points="0,65 15,40 30,65" fill="url(#mountain2)" opacity="0.6"/>
+  <polygon points="20,65 40,35 55,65" fill="url(#mountain2)" opacity="0.5"/>
+  <polygon points="45,65 65,30 80,65" fill="url(#mountain2)" opacity="0.6"/>
+  <polygon points="70,65 90,38 100,65" fill="url(#mountain2)" opacity="0.5"/>
+
+  <!-- Foreground mountains -->
+  <polygon points="0,68 12,50 25,68" fill="url(#mountain1)"/>
+  <polygon points="15,68 35,42 55,68" fill="url(#mountain1)"/>
+  <polygon points="40,68 58,45 75,68" fill="url(#mountain1)"/>
+  <polygon points="65,68 82,48 100,68" fill="url(#mountain1)"/>
+
+  <!-- Ground -->
+  <rect x="0" y="68" width="100" height="32" fill="#0f172a"/>
+
+  <!-- Light rays from sun -->
+  <g opacity="0.12" stroke="#fcd34d" stroke-width="1.5">
+    <line x1="50" y1="45" x2="5" y2="20"/>
+    <line x1="50" y1="45" x2="20" y2="10"/>
+    <line x1="50" y1="45" x2="40" y2="5"/>
+    <line x1="50" y1="45" x2="60" y2="5"/>
+    <line x1="50" y1="45" x2="80" y2="10"/>
+    <line x1="50" y1="45" x2="95" y2="20"/>
+  </g>
+</svg>

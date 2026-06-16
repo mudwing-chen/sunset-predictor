@@ -1,0 +1,12 @@
+{
+  "name": "朝霞晚霞预测",
+  "short_name": "霞光预测",
+  "description": "风光摄影师专用朝霞晚霞质量预测工具",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
