@@ -276,9 +276,361 @@ const SunCalcModule = {
   }
 };
     // ====== Weather Module ======
+const WeatherModule = {
+  WEATHER_URL: 'https://api.open-meteo.com/v1/forecast',
+  AIR_QUALITY_URL: 'https://air-quality-api.open-meteo.com/v1/air-quality',
+
+  async fetchWeather(lat, lng) {
+    const params = new URLSearchParams({
+      latitude: lat,
+      longitude: lng,
+      hourly: 'cloud_cover,visibility,precipitation,relative_humidity_2m',
+      timezone: 'auto',
+      forecast_days: 2
+    });
+    const resp = await fetch(`${this.WEATHER_URL}?${params}`);
+    if (!resp.ok) throw new Error(`天气数据获取失败 (${resp.status})`);
+    return await resp.json();
+  },
+
+  async fetchAirQuality(lat, lng) {
+    const params = new URLSearchParams({
+      latitude: lat,
+      longitude: lng,
+      hourly: 'european_aqi',
+      timezone: 'auto',
+      forecast_days: 2
+    });
+    const resp = await fetch(`${this.AIR_QUALITY_URL}?${params}`);
+    if (!resp.ok) return null;
+    return await resp.json();
+  },
+
+  async fetchOffsetWeather(lat, lng) {
+    const params = new URLSearchParams({
+      latitude: lat,
+      longitude: lng,
+      hourly: 'cloud_cover',
+      timezone: 'auto',
+      forecast_days: 2
+    });
+    try {
+      const resp = await fetch(`${this.WEATHER_URL}?${params}`);
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch {
+      return null;
+    }
+  },
+
+  calculateOffset(lat, lng, azimuthRad, distanceKm) {
+    const earthRadius = 6371;
+    const latRad = lat * Math.PI / 180;
+    const lngRad = lng * Math.PI / 180;
+    const angularDist = distanceKm / earthRadius;
+
+    const newLatRad = Math.asin(
+      Math.sin(latRad) * Math.cos(angularDist) +
+      Math.cos(latRad) * Math.sin(angularDist) * Math.cos(azimuthRad)
+    );
+    const newLngRad = lngRad + Math.atan2(
+      Math.sin(azimuthRad) * Math.sin(angularDist) * Math.cos(latRad),
+      Math.cos(angularDist) - Math.sin(latRad) * Math.sin(newLatRad)
+    );
+
+    return {
+      lat: newLatRad * 180 / Math.PI,
+      lng: newLngRad * 180 / Math.PI
+    };
+  },
+
+  getHourlyData(data, targetTime) {
+    if (!data || !data.hourly || !data.hourly.time) return null;
+    const times = data.hourly.time;
+    const targetMs = targetTime.getTime();
+    let closestIdx = 0;
+    let closestDiff = Infinity;
+
+    for (let i = 0; i < times.length; i++) {
+      const diff = Math.abs(new Date(times[i]).getTime() - targetMs);
+      if (diff < closestDiff) {
+        closestDiff = diff;
+        closestIdx = i;
+      }
+    }
+
+    const result = { index: closestIdx, diffMinutes: closestDiff / 60000 };
+    for (const key in data.hourly) {
+      if (key !== 'time') {
+        result[key] = data.hourly[key][closestIdx];
+      }
+    }
+    return result;
+  },
+
+  async fetchAll(lat, lng, sunriseTime, sunsetTime, sunriseAzimuth, sunsetAzimuth) {
+    const [weather, airQuality] = await Promise.all([
+      this.fetchWeather(lat, lng),
+      this.fetchAirQuality(lat, lng)
+    ]);
+
+    let offsetSunriseData = null;
+    let offsetSunsetData = null;
+
+    if (sunriseAzimuth !== null) {
+      const offsetPoint = this.calculateOffset(lat, lng, sunriseAzimuth, 200);
+      const offsetWeather = await this.fetchOffsetWeather(offsetPoint.lat, offsetPoint.lng);
+      if (offsetWeather) {
+        offsetSunriseData = this.getHourlyData(offsetWeather, sunriseTime);
+      }
+    }
+    if (sunsetAzimuth !== null) {
+      const offsetPoint = this.calculateOffset(lat, lng, sunsetAzimuth, 200);
+      const offsetWeather = await this.fetchOffsetWeather(offsetPoint.lat, offsetPoint.lng);
+      if (offsetWeather) {
+        offsetSunsetData = this.getHourlyData(offsetWeather, sunsetTime);
+      }
+    }
+
+    return {
+      weather,
+      airQuality,
+      sunrise: {
+        hourly: this.getHourlyData(weather, sunriseTime),
+        aqi: airQuality ? this.getHourlyData(airQuality, sunriseTime) : null,
+        offsetCloud: offsetSunriseData
+      },
+      sunset: {
+        hourly: this.getHourlyData(weather, sunsetTime),
+        aqi: airQuality ? this.getHourlyData(airQuality, sunsetTime) : null,
+        offsetCloud: offsetSunsetData
+      }
+    };
+  }
+};
     // ====== Scoring Module ======
+const ScoringModule = {
+  scoreCloud(cloudCover) {
+    if (cloudCover === null || cloudCover === undefined) return 0.5;
+    if (cloudCover < 5) return 0.1;
+    if (cloudCover < 15) return 0.3;
+    if (cloudCover < 25) return 0.5;
+    if (cloudCover <= 60) return 1.0;
+    if (cloudCover <= 80) return 0.7;
+    return 0.3;
+  },
+
+  scoreCloudOffset(targetCloud, offsetCloud, hasOffsetData) {
+    if (!hasOffsetData || offsetCloud === null || offsetCloud === undefined) return 0.7;
+    const targetGood = targetCloud >= 15 && targetCloud <= 80;
+    if (!targetGood) return 0.5;
+    if (offsetCloud < 15) return 1.0;
+    if (offsetCloud < 40) return 0.8;
+    if (offsetCloud < 70) return 0.5;
+    return 0.2;
+  },
+
+  scoreAQI(aqi) {
+    if (aqi === null || aqi === undefined) return 0.6;
+    if (aqi < 20) return 0.4;
+    if (aqi <= 50) return 0.6;
+    if (aqi <= 100) return 0.9;
+    if (aqi <= 150) return 0.6;
+    if (aqi <= 200) return 0.3;
+    return 0.1;
+  },
+
+  scoreVisibility(visibility) {
+    if (visibility === null || visibility === undefined) return 0.6;
+    const km = visibility / 1000;
+    if (km > 20) return 1.0;
+    if (km > 10) return 0.8;
+    if (km > 5) return 0.5;
+    if (km > 2) return 0.3;
+    return 0.1;
+  },
+
+  scoreRainBonus(weatherData, targetTime) {
+    if (!weatherData || !weatherData.hourly || !weatherData.hourly.precipitation) return 0;
+    const times = weatherData.hourly.time;
+    const precip = weatherData.hourly.precipitation;
+    const targetIdx = this._findClosestIndex(times, targetTime);
+    let hadRain = false;
+    for (let i = Math.max(0, targetIdx - 6); i < targetIdx; i++) {
+      if (precip[i] > 0.5) hadRain = true;
+    }
+    const targetPrecip = precip[targetIdx] || 0;
+    const nowClear = targetPrecip < 0.3;
+    if (hadRain && nowClear) return 1.0;
+    if (hadRain) return 0.5;
+    return 0;
+  },
+
+  _findClosestIndex(times, targetTime) {
+    const targetMs = targetTime.getTime();
+    let closestIdx = 0;
+    let closestDiff = Infinity;
+    for (let i = 0; i < times.length; i++) {
+      const diff = Math.abs(new Date(times[i]).getTime() - targetMs);
+      if (diff < closestDiff) { closestDiff = diff; closestIdx = i; }
+    }
+    return closestIdx;
+  },
+
+  scoreTimeFit(hourlyData, sunTime) {
+    if (!hourlyData || !hourlyData.time) return 0.5;
+    const dataTime = new Date(hourlyData.time);
+    const diffMin = Math.abs(dataTime.getTime() - sunTime.getTime()) / 60000;
+    if (diffMin <= 30) return 1.0;
+    if (diffMin <= 60) return 0.8;
+    if (diffMin <= 120) return 0.5;
+    return 0.3;
+  },
+
+  calculate(data, weatherFull, isSunrise, sunTime, sunAzimuth) {
+    if (!data) return { score: 0, level: 'nodata', label: '数据不足', factors: {} };
+
+    const cloudScore = this.scoreCloud(data.hourly?.cloud_cover);
+    const cloudOffsetScore = this.scoreCloudOffset(
+      data.hourly?.cloud_cover,
+      data.offsetCloud?.cloud_cover,
+      data.offsetCloud !== null
+    );
+    const aqiScore = this.scoreAQI(data.aqi?.european_aqi);
+    const visibilityScore = this.scoreVisibility(data.hourly?.visibility);
+    const rainBonus = this.scoreRainBonus(weatherFull, sunTime);
+    const timeFitScore = this.scoreTimeFit(data.hourly, sunTime);
+
+    const weights = { cloud: 0.30, offset: 0.20, aqi: 0.15, visibility: 0.15, rain: 0.10, timeFit: 0.10 };
+    const total = (
+      cloudScore * weights.cloud +
+      cloudOffsetScore * weights.offset +
+      aqiScore * weights.aqi +
+      visibilityScore * weights.visibility +
+      rainBonus * weights.rain +
+      timeFitScore * weights.timeFit
+    );
+
+    const finalScore = Math.round(total * 10 * 10) / 10;
+
+    return {
+      score: finalScore,
+      level: this.getLevel(finalScore),
+      label: this.getLabel(finalScore),
+      description: this.generateDescription(cloudScore, cloudOffsetScore, aqiScore, visibilityScore, rainBonus, isSunrise),
+      color: this.getColor(finalScore),
+      factors: {
+        cloud: { score: cloudScore, value: data.hourly?.cloud_cover },
+        offset: { score: cloudOffsetScore, value: data.offsetCloud?.cloud_cover, hasData: data.offsetCloud !== null },
+        aqi: { score: aqiScore, value: data.aqi?.european_aqi },
+        visibility: { score: visibilityScore, value: data.hourly?.visibility },
+        rain: { score: rainBonus, value: null },
+        timeFit: { score: timeFitScore, value: null }
+      }
+    };
+  },
+
+  getLevel(score) {
+    if (score >= 9) return 'excellent';
+    if (score >= 7) return 'good';
+    if (score >= 5) return 'fair';
+    if (score >= 3) return 'poor';
+    return 'bad';
+  },
+
+  getLabel(score) {
+    if (score >= 9) return '🌟 绝佳';
+    if (score >= 7) return '👍 很好';
+    if (score >= 5) return '😐 一般';
+    if (score >= 3) return '👎 较差';
+    return '💔 很差';
+  },
+
+  getColor(score) {
+    if (score >= 9) return 'text-amber-300';
+    if (score >= 7) return 'text-emerald-400';
+    if (score >= 5) return 'text-yellow-400';
+    if (score >= 3) return 'text-orange-400';
+    return 'text-red-400';
+  },
+
+  getBgColor(score) {
+    if (score >= 9) return 'bg-amber-500/20 border-amber-500/30';
+    if (score >= 7) return 'bg-emerald-500/20 border-emerald-500/30';
+    if (score >= 5) return 'bg-yellow-500/20 border-yellow-500/30';
+    if (score >= 3) return 'bg-orange-500/20 border-orange-500/30';
+    return 'bg-red-500/20 border-red-500/30';
+  },
+
+  generateDescription(cloud, offset, aqi, vis, rain, isSunrise) {
+    const parts = [];
+    if (cloud >= 0.8) parts.push('云量适中');
+    else if (cloud < 0.3) parts.push('云量偏少');
+    else if (cloud >= 0.5) parts.push('云量尚可');
+
+    if (offset >= 0.8) parts.push('太阳方向通透');
+    else if (offset < 0.4) parts.push('太阳方向有遮挡');
+
+    if (vis >= 0.8) parts.push('能见度好');
+    else if (vis < 0.4) parts.push('能见度差');
+
+    if (rain >= 0.8) parts.push('雨后初晴✨');
+
+    if (aqi >= 0.8) parts.push('色彩可能浓郁');
+    else if (aqi < 0.3) parts.push('空气质量较差');
+
+    if (parts.length === 0) return isSunrise ? '朝霞条件一般' : '晚霞条件一般';
+
+    const finalDesc = parts.join('，');
+    const level = (cloud + offset + vis) / 3;
+    if (level >= 0.7) return `${finalDesc}，非常推荐拍摄！`;
+    if (level >= 0.4) return `${finalDesc}，可以尝试拍摄。`;
+    return `${finalDesc}，不太建议专门前往。`;
+  }
+};
     // ====== UI Module ======
     // ====== Map Module ======
+    const MapModule = {
+      map: null,
+      marker: null,
+      isOpen: false,
+
+      open() {
+        const panel = document.getElementById('mapPanel');
+        panel.classList.remove('hidden');
+        this.isOpen = true;
+
+        if (!this.map) {
+          const { latitude, longitude } = LocationModule.state;
+          this.map = L.map('map').setView([latitude, longitude], 10);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 18
+          }).addTo(this.map);
+
+          this.map.on('click', async (e) => {
+            const { lat, lng } = e.latlng;
+            if (this.marker) this.marker.setLatLng([lat, lng]);
+            else this.marker = L.marker([lat, lng]).addTo(this.map);
+            LocationModule.setLocation(lat, lng);
+          });
+        } else {
+          this.map.invalidateSize();
+        }
+
+        setTimeout(() => this.map?.invalidateSize(), 300);
+      },
+
+      close() {
+        document.getElementById('mapPanel').classList.add('hidden');
+        this.isOpen = false;
+      },
+
+      toggle() {
+        if (this.isOpen) this.close();
+        else this.open();
+      }
+    };
     // ====== App Controller ======
   </script>
 </body>
