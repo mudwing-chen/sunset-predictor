@@ -19,188 +19,180 @@
   <!-- Leaflet CSS CDN -->
   <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
 
-  <!-- Tailwind Config (MUST be before Tailwind CDN) -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            sunset: {
-              50: '#fffbeb',
-              100: '#fef3c7',
-              200: '#fde68a',
-              300: '#fcd34d',
-              400: '#fbbf24',
-              500: '#f59e0b',
-              600: '#d97706',
-              700: '#b45309',
-              800: '#92400e',
-              900: '#78350f',
-            },
-            dawn: {
-              50: '#fdf2f8',
-              100: '#fce7f3',
-              200: '#fbcfe8',
-              300: '#f9a8d4',
-              400: '#f472b6',
-              500: '#ec4899',
-              600: '#db2777',
-              700: '#be185d',
-              800: '#9d174d',
-              900: '#831843',
-            },
-          },
-          fontFamily: {
-            sans: ['"Noto Sans SC"', 'system-ui', '-apple-system', 'sans-serif'],
-          },
-        },
-      },
-    };
-  </script>
-
-  <!-- Tailwind CSS CDN (load ONCE, after config) -->
+  <!-- Inter font + Tailwind CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Inline Styles -->
+  <!-- Styles -->
   <style>
-    /* Leaflet overrides for dark theme */
-    .leaflet-container {
-      background: #1e293b;
+    *, *::before, *::after { -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
 
-    .leaflet-control-zoom a {
-      background: #334155 !important;
-      color: #e2e8f0 !important;
-      border-color: #475569 !important;
+    /* Hero cards */
+    .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .hero-card {
+      position: relative; border-radius: 20px; padding: 20px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+      cursor: pointer; transition: all 0.3s; overflow: hidden;
     }
+    .hero-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); }
+    .hero-best {
+      background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.03));
+      border-color: rgba(245,158,11,0.18);
+    }
+    .hero-best::before { background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, transparent 50%); }
+    .hero-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .hero-tag { display: flex; align-items: center; gap: 8px; }
+    .hero-tag span:first-child { font-size: 18px; }
+    .hero-tag span:last-child { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.88); letter-spacing: -0.2px; }
+    .hero-time { font-size: 11px; color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+    .hero-score { display: flex; align-items: baseline; gap: 4px; }
+    .hero-num { font-size: 48px; font-weight: 700; letter-spacing: -2px; line-height: 1; }
+    @media (max-width:640px) { .hero-num { font-size: 40px; } }
+    .hero-lbl { font-size: 15px; font-weight: 500; margin-left: 4px; }
+    .hero-bar { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.06); margin-top: 12px; overflow: hidden; }
+    .hero-fill { height: 100%; border-radius: 4px; transition: width 0.6s; }
+    .hero-fill-best { background: linear-gradient(90deg, #f59e0b, #f97316); }
+    .hero-fill-mid { background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.4)); }
+    .hero-desc { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.5; margin-top: 10px; }
 
-    .leaflet-control-attribution {
-      background: rgba(15, 23, 42, 0.8) !important;
-      color: #94a3b8 !important;
-    }
+    /* Weather bar */
+    .weather-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+    .weather-item { border-radius: 14px; padding: 14px 12px; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(16px); }
+    .weather-item .val { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.85); }
+    .weather-item .lbl { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    @media (max-width:640px) { .weather-bar { grid-template-columns: repeat(2,1fr); } }
 
-    .leaflet-control-attribution a {
-      color: #60a5fa !important;
-    }
+    /* Cloud timeline */
+    .tl-panel { border-radius: 20px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(20px); margin-bottom: 16px; }
+    .tl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .tl-title { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
+    .tl-now { font-size: 11px; color: #f59e0b; font-weight: 500; }
+    .tl-chart { display: flex; gap: 4px; align-items: flex-end; height: 64px; overflow-x: auto; padding-bottom: 4px; }
+    .tl-col { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 28px; }
+    .tl-bars { display: flex; gap: 2px; align-items: flex-end; height: 44px; }
+    .tl-bar { width: 6px; border-radius: 3px 3px 0 0; }
+    .tl-high { background: #f59e0b; opacity: 0.7; }
+    .tl-mid { background: #f97316; opacity: 0.6; }
+    .tl-low { background: rgba(255,255,255,0.25); opacity: 0.4; }
+    .tl-hour { font-size: 9px; color: rgba(255,255,255,0.25); }
+    .tl-legend { display: flex; gap: 14px; margin-top: 10px; }
+    .tl-legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.3); }
+    .tl-legend-dot { width: 8px; height: 8px; border-radius: 2px; }
 
-    /* Scrollbar styling */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
+    /* Factor panel */
+    .factor-panel { border-radius: 20px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(20px); margin-bottom: 16px; }
+    .fp-title { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
+    .fp-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .fp-label { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.45); width: 90px; flex-shrink: 0; }
+    .fp-bar { flex: 1; height: 5px; border-radius: 5px; background: rgba(255,255,255,0.05); overflow: hidden; }
+    .fp-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, rgba(245,158,11,0.5), rgba(245,158,11,0.85)); transition: width 0.6s; }
+    .fp-value { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.3); width: 44px; text-align: right; }
 
-    ::-webkit-scrollbar-track {
-      background: #1e293b;
-    }
+    /* Mini cards (tomorrow) */
+    .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .mini-card { border-radius: 16px; padding: 16px; cursor: pointer; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(20px); transition: all 0.2s; }
+    .mini-card:hover { background: rgba(255,255,255,0.06); }
+    .mini-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .mini-name { display: flex; align-items: center; gap: 6px; }
+    .mini-name span:first-child { font-size: 14px; }
+    .mini-name span:last-child { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); }
+    .mini-time { font-size: 10px; color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.04); padding: 2px 8px; border-radius: 12px; }
+    .mini-score { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
+    .mini-bar { height: 3px; border-radius: 3px; background: rgba(255,255,255,0.05); margin-top: 8px; overflow: hidden; }
+    .mini-fill { height: 100%; border-radius: 3px; }
 
-    ::-webkit-scrollbar-thumb {
-      background: #475569;
-      border-radius: 3px;
-    }
+    /* Multi-day trend */
+    .trend { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
+    .trend-day { min-width: 52px; text-align: center; padding: 10px 4px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); }
+    .trend-dow { font-size: 10px; color: rgba(255,255,255,0.25); margin-bottom: 4px; }
+    .trend-icon { font-size: 16px; margin-bottom: 4px; }
+    .trend-score { font-size: 15px; font-weight: 700; }
+    .trend-label { font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 2px; }
 
-    ::-webkit-scrollbar-thumb:hover {
-      background: #64748b;
-    }
+    /* Section */
+    .sec-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+    .sec-divider { display: flex; align-items: center; gap: 14px; margin: 20px 0 14px; }
+    .sec-divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent); }
 
-    /* Card skeleton loading pulse */
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    .card-skeleton {
-      background: rgba(30, 41, 59, 0.5);
-      border: 1px solid rgba(51, 65, 85, 0.5);
-      border-radius: 12px;
-      padding: 16px;
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    /* Glass card effect */
-    .glass-card {
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    /* Smooth transitions */
-    * {
-      -webkit-tap-highlight-color: transparent;
-    }
+    /* Skeleton */
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .card-skeleton { border-radius: 20px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
   </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen">
-  <div id="app" class="min-h-screen pb-8">
-    <!-- Header / Location Bar -->
-    <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
-      <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
-        <div class="text-2xl">🌅</div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2">
-            <span id="locationName" class="text-sm font-medium truncate">定位中...</span>
-            <span id="loadingSpinner" class="inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></span>
+<body style="background:linear-gradient(170deg,#08080e 0%,#14100d 40%,#120c08 65%,#0a0a14 100%);color:white;min-height:100vh;margin:0">
+  <div id="app" class="min-h-screen" style="padding: 20px 16px 40px; max-width: 920px; margin: 0 auto;">
+    <!-- Header -->
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="loc-badge loc-gradient">🌅</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span id="locationName" style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.92);letter-spacing:-0.2px">定位中...</span>
+            <span id="loadingSpinner" style="display:none;width:14px;height:14px;border:2px solid rgba(245,158,11,0.5);border-top-color:#f59e0b;border-radius:50%;animation:spin 0.6s linear infinite;flex-shrink:0"></span>
           </div>
-          <p id="locationCoords" class="text-xs text-slate-400"></p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="searchToggle" class="p-2 rounded-lg hover:bg-slate-800 transition" title="搜索地点">
-            <i data-lucide="search" class="w-5 h-5"></i>
-          </button>
-          <button id="mapToggle" class="p-2 rounded-lg hover:bg-slate-800 transition" title="地图选点">
-            <i data-lucide="map" class="w-5 h-5"></i>
-          </button>
-          <button id="locateBtn" class="p-2 rounded-lg hover:bg-slate-800 transition" title="重新定位">
-            <i data-lucide="crosshair" class="w-5 h-5"></i>
-          </button>
+          <p id="locationCoords" style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:400;margin-top:1px"></p>
         </div>
       </div>
-      <!-- Search Panel (hidden by default) -->
-      <div id="searchPanel" class="hidden max-w-4xl mx-auto px-4 pb-3">
-        <div class="relative">
-          <input type="text" id="searchInput" placeholder="输入城市名，如 杭州、上海、黄山..."
-                 class="w-full bg-slate-800 text-white rounded-lg px-4 py-2.5 pl-10 text-sm border border-slate-700 focus:border-amber-500 focus:outline-none">
-          <i data-lucide="search" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
-        </div>
-        <div id="searchResults" class="mt-2 space-y-1"></div>
+      <div style="display:flex;gap:6px">
+        <button id="searchToggle" class="top-bar-btn" title="搜索地点">🔍</button>
+        <button id="mapToggle" class="top-bar-btn" title="地图选点">🗺️</button>
+        <button id="locateBtn" class="top-bar-btn" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.15);color:#f59e0b" title="重新定位">📍</button>
       </div>
-    </header>
+    </div>
 
-    <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
+    <!-- Search Panel -->
+    <div id="searchPanel" style="display:none;margin-top:12px">
+      <div style="position:relative">
+        <input type="text" id="searchInput" placeholder="输入城市名，如 杭州、上海、黄山..."
+               style="width:100%;background:rgba(255,255,255,0.06);color:white;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px 12px 40px;font-size:14px;outline:none;backdrop-filter:blur(12px)">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;opacity:0.4">🔍</span>
+      </div>
+      <div id="searchResults" style="margin-top:8px;display:flex;flex-direction:column;gap:4px"></div>
+    </div>
+
+    <main style="margin-top:20px">
       <!-- Error banner -->
-      <div id="errorBanner" class="hidden bg-red-500/20 border border-red-500/30 rounded-xl p-4 text-sm text-red-300">
+      <div id="errorBanner" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:12px 16px;font-size:13px;color:rgba(248,113,113,0.9);margin-bottom:16px">
         <span id="errorMessage"></span>
-        <button id="retryBtn" class="ml-2 underline">重试</button>
+        <button id="retryBtn" style="margin-left:8px;text-decoration:underline;background:none;border:none;color:inherit;cursor:pointer">重试</button>
       </div>
 
-      <!-- Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div id="card-sunrise-today" class="card-skeleton">加载中...</div>
-        <div id="card-sunset-today" class="card-skeleton">加载中...</div>
-        <div id="card-sunrise-tomorrow" class="card-skeleton">加载中...</div>
-        <div id="card-sunset-tomorrow" class="card-skeleton">加载中...</div>
+      <!-- Cards -->
+      <div class="hero">
+        <div id="card-sunrise-today" class="card-skeleton" style="min-height:160px"></div>
+        <div id="card-sunset-today" class="card-skeleton" style="min-height:160px"></div>
       </div>
 
-      <!-- Factor Detail Panel -->
-      <div id="factorPanel" class="hidden bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-        <h3 class="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
-          <i data-lucide="bar-chart-3" class="w-4 h-4"></i> 详细因子分析
-        </h3>
-        <div id="factorContent" class="space-y-2"></div>
-      </div>
-
-      <!-- Map Panel (hidden by default) -->
-      <div id="mapPanel" class="hidden rounded-xl overflow-hidden border border-slate-700" style="height: 400px;">
-        <div id="map" class="w-full h-full"></div>
+      <!-- Map -->
+      <div id="mapPanel" style="display:none;margin-top:16px;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);height:380px">
+        <div id="map" style="width:100%;height:100%"></div>
       </div>
     </main>
 
-    <footer class="max-w-4xl mx-auto px-4 mt-8 text-center text-xs text-slate-500">
-      <p>数据来源: <a href="https://open-meteo.com" class="underline hover:text-slate-300" target="_blank">Open-Meteo</a> · <a href="https://github.com/mourner/suncalc" class="underline hover:text-slate-300" target="_blank">SunCalc</a></p>
-      <p class="mt-1">免费开源 · 风光摄影师专用工具</p>
+    <footer style="margin-top:40px;text-align:center;font-size:12px;color:rgba(255,255,255,0.2)">
+      <p>数据来源: <a href="https://open-meteo.com" style="color:rgba(255,255,255,0.35);text-decoration:underline" target="_blank">Open-Meteo</a> · <a href="https://github.com/mourner/suncalc" style="color:rgba(255,255,255,0.35);text-decoration:underline" target="_blank">SunCalc</a></p>
     </footer>
   </div>
+
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 
   <!-- Third-party libraries (deferred) -->
   <script defer src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script defer src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Application Code (deferred) -->
   <script defer>
@@ -377,9 +369,10 @@ const WeatherModule = {
     const params = new URLSearchParams({
       latitude: lat,
       longitude: lng,
-      hourly: 'cloud_cover,visibility,precipitation,relative_humidity_2m',
+      hourly: 'temperature_2m,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,precipitation,wind_speed_10m,wind_direction_10m',
+      daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum',
       timezone: 'auto',
-      forecast_days: 2
+      forecast_days: 7
     });
     const resp = await fetch(`${this.WEATHER_URL}?${params}`);
     if (!resp.ok) throw new Error(`天气数据获取失败 (${resp.status})`);
@@ -392,11 +385,27 @@ const WeatherModule = {
       longitude: lng,
       hourly: 'european_aqi',
       timezone: 'auto',
-      forecast_days: 2
+      forecast_days: 7
     });
     const resp = await fetch(`${this.AIR_QUALITY_URL}?${params}`);
     if (!resp.ok) return null;
     return await resp.json();
+  },
+
+  // Moon phase for a given date
+  getMoonPhase(date) {
+    return SunCalc.getMoonIllumination(date);
+  },
+
+  getMoonTimes(lat, lng, date) {
+    return SunCalc.getMoonTimes(date, lat, lng);
+  },
+
+  // Wind direction to text
+  windDirText(deg) {
+    if (deg === null || deg === undefined) return '';
+    const dirs = ['北', '东北', '东', '东南', '南', '西南', '西', '西北'];
+    return dirs[Math.round(deg / 45) % 8];
   },
 
   async fetchOffsetWeather(lat, lng) {
@@ -485,9 +494,19 @@ const WeatherModule = {
       }
     }
 
+    // Get hourly timeline for today
+    const todayTL = this.buildTimeline(weather, 'today');
+    const tomorrowTL = this.buildTimeline(weather, 'tomorrow');
+
     return {
       weather,
       airQuality,
+      todayTL,
+      tomorrowTL,
+      sunData: {
+        moonPhase: this.getMoonPhase(new Date()),
+        moonPhaseTomorrow: this.getMoonPhase(new Date(Date.now() + 86400000))
+      },
       sunrise: {
         hourly: this.getHourlyData(weather, sunriseTime),
         aqi: airQuality ? this.getHourlyData(airQuality, sunriseTime) : null,
@@ -499,6 +518,36 @@ const WeatherModule = {
         offsetCloud: offsetSunsetData
       }
     };
+  },
+
+  // Build hourly timeline for cloud timeline chart
+  buildTimeline(weather, day) {
+    if (!weather || !weather.hourly || !weather.hourly.time) return [];
+    const hours = weather.hourly;
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+    const tomStr = new Date(today.getTime() + 86400000).toISOString().slice(0, 10);
+    const prefix = day === 'today' ? todayStr : tomStr;
+
+    const result = [];
+    for (let i = 0; i < hours.time.length; i++) {
+      if (!hours.time[i].startsWith(prefix)) continue;
+      const hour = parseInt(hours.time[i].slice(11, 13));
+      result.push({
+        hour,
+        cloud_cover: hours.cloud_cover[i],
+        cloud_cover_low: hours.cloud_cover_low[i],
+        cloud_cover_mid: hours.cloud_cover_mid[i],
+        cloud_cover_high: hours.cloud_cover_high[i],
+        temperature: hours.temperature_2m[i],
+        humidity: hours.relative_humidity_2m[i],
+        visibility: hours.visibility[i],
+        precipitation: hours.precipitation[i],
+        wind: hours.wind_speed_10m[i],
+        wind_dir: hours.wind_direction_10m[i]
+      });
+    }
+    return result;
   }
 };
     // ====== Scoring Module ======
@@ -683,84 +732,154 @@ const ScoringModule = {
 };
     // ====== UI Module ======
     const UIModule = {
-      buildCard(title, emoji, period) {
-        if (!period || !period.score) {
-          return `
-            <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 backdrop-blur">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-lg">${emoji}</span>
-                <h3 class="text-sm font-medium text-slate-300">${title}</h3>
-              </div>
-              <p class="text-slate-500 text-sm">数据加载中...</p>
-            </div>`;
+      renderFullPage(data) {
+        const t = data['sunrise-today'];
+        const s = data['sunset-today'];
+        const tt = data['sunrise-tomorrow'];
+        const ts = data['sunset-tomorrow'];
+        const w = data.currentWeather || {};
+        const sd = data.sunData || {};
+        const tl = data.todayTL || [];
+        const weather = data.weather;
+
+        // Hero cards
+        const tHtml = this.buildHeroCard('今日朝霞', '🌅', t);
+        const sHtml = this.buildHeroCard('今日晚霞', '🌇', s);
+
+        // Mini cards for tomorrow
+        const ttHtml = this.buildMiniCard('🌅', '朝霞', tt);
+        const tsHtml = this.buildMiniCard('🌇', '晚霞', ts);
+
+        // Weather bar
+        const temp = w.temperature !== undefined ? `${Math.round(w.temperature)}°` : '--';
+        const hum = w.humidity !== undefined ? `${w.humidity}%` : '--';
+        const wind = w.wind !== undefined ? `↗${Math.round(w.wind)}` : '--';
+        const moonEmoji = sd.moonPhase ? (sd.moonPhase.fraction > 0.9 ? '🌖' : sd.moonPhase.fraction > 0.5 ? '🌔' : sd.moonPhase.fraction > 0.1 ? '🌒' : '🌑') : '🌖';
+        const moonPct = sd.moonPhase ? Math.round(sd.moonPhase.fraction * 100) : '--';
+
+        // Cloud timeline
+        const tlHtml = tl.map(h => {
+          const highH = Math.max(2, h.cloud_cover_high / 2);
+          const midH = Math.max(2, h.cloud_cover_mid / 2);
+          const lowH = Math.max(2, h.cloud_cover_low / 2);
+          return `<div class="tl-col"><div class="tl-bars"><div class="tl-bar tl-high" style="height:${highH}px"></div><div class="tl-bar tl-mid" style="height:${midH}px"></div><div class="tl-bar tl-low" style="height:${lowH}px"></div></div><span class="tl-hour">${String(h.hour).padStart(2,'0')}</span></div>`;
+        }).join('');
+
+        // Factor panel (best score)
+        const best = t && s && s.score >= t.score ? s : (t || s || tt || ts);
+        const bestTitle = best === s ? '今日晚霞' : best === t ? '今日朝霞' : best === ts ? '明日晚霞' : '明日朝霞';
+        const factorHtml = best ? this.buildFactorPanel(bestTitle, best.factors) : '';
+
+        // Multi-day trend using daily data
+        let trendHtml = '';
+        if (weather?.daily) {
+          const todayDate = new Date();
+          const dayLabels = ['今天','明天','','周三','周四','周五','周六','周日','周一','周二'];
+          trendHtml = `<div class="sec-label" style="margin-top:20px">📅 未来趋势</div><div class="trend">`;
+          for (let i = 0; i < Math.min(5, weather.daily.time.length); i++) {
+            const d = new Date(weather.daily.time[i]);
+            const dayIdx = d.getDay();
+            const isTdy = i === 0;
+            const isTom = i === 1;
+            const label = isTdy ? '今天' : isTom ? '明天' : dayLabels[dayIdx] || '';
+            trendHtml += `<div class="trend-day"><div class="trend-dow">${label}</div><div class="trend-icon">🌅</div><div class="trend-score" style="color:rgba(255,255,255,0.4)">--</div><div class="trend-label">朝霞</div></div><div class="trend-day"><div class="trend-dow"></div><div class="trend-icon">🌇</div><div class="trend-score" style="color:rgba(255,255,255,0.4)">--</div><div class="trend-label">晚霞</div></div>`;
+          }
+          trendHtml += `</div>`;
         }
 
-        const { score, level, label, description, color } = period;
-        const bgColor = ScoringModule.getBgColor(score);
-        const scoreBar = this.buildScoreBar(score);
+        const sections = [
+          // Hero cards
+          `<div class="hero">${tHtml}${sHtml}</div>`,
+          // Weather bar
+          `<div class="weather-bar">
+            <div class="weather-item"><div class="val">${temp}</div><div class="lbl">温度</div></div>
+            <div class="weather-item"><div class="val">${hum}</div><div class="lbl">湿度</div></div>
+            <div class="weather-item"><div class="val">${wind}</div><div class="lbl">风速 km/h</div></div>
+            <div class="weather-item"><div class="val">${moonEmoji}</div><div class="lbl">月相 ${moonPct}%</div></div>
+          </div>`,
+          // Cloud timeline
+          tl.length > 0 ? `<div class="tl-panel">
+            <div class="tl-header"><span class="tl-title">☁️ 云量时间线</span><span class="tl-now">现在 ▶</span></div>
+            <div class="tl-chart">${tlHtml}</div>
+            <div class="tl-legend">
+              <div class="tl-legend-item"><div class="tl-legend-dot" style="background:#f59e0b"></div>高云</div>
+              <div class="tl-legend-item"><div class="tl-legend-dot" style="background:#f97316"></div>中云</div>
+              <div class="tl-legend-item"><div class="tl-legend-dot" style="background:rgba(255,255,255,0.25)"></div>低云</div>
+            </div>
+          </div>` : '',
+          // Factor panel
+          factorHtml ? `<div class="factor-panel">${factorHtml}</div>` : '',
+          // Tomorrow divider
+          `<div class="sec-divider"><span class="sec-label">明日 ${new Date(Date.now()+86400000).getMonth()+1}月${new Date(Date.now()+86400000).getDate()}日</span></div>`,
+          // Tomorrow mini cards
+          `<div class="mini-grid">${ttHtml}${tsHtml}</div>`,
+          // Multi-day trend
+          trendHtml
+        ];
+
+        // Mount into containers
+        const main = document.querySelector('main');
+        if (!main) return;
+        main.querySelectorAll('.dynamic-content').forEach(el => el.remove());
+
+        const dynDiv = document.createElement('div');
+        dynDiv.className = 'dynamic-content';
+        dynDiv.innerHTML = sections.join('\n');
+        main.appendChild(dynDiv);
+      },
+
+      buildHeroCard(title, emoji, period) {
+        if (!period || !period.score) {
+          return `<div class="hero-card" style="min-height:100px"><div style="font-size:13px;color:rgba(255,255,255,0.3)">加载中...</div></div>`;
+        }
+        const { score, level, label, description } = period;
+        const isBest = score >= 7;
+        const pct = Math.min(100, (score / 10) * 100);
+        const numColor = isBest ? '#f59e0b' : score >= 5 ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.45)';
+        const lblColor = isBest ? '#f59e0b' : score >= 5 ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.3)';
 
         return `
-          <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 backdrop-blur hover:border-slate-600/50 transition cursor-pointer ${bgColor}"
-               onclick="UIModule.showFactors('${title}')">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">${emoji}</span>
-                <h3 class="text-sm font-medium text-slate-300">${title}</h3>
-              </div>
-              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-700/50 text-slate-400">${period.timeRange || ''}</span>
+          <div class="hero-card ${isBest ? 'hero-best' : ''}" onclick="UIModule.showFactors('${title}')">
+            <div class="hero-top">
+              <div class="hero-tag"><span>${emoji}</span><span>${title}</span></div>
+              <span class="hero-time">${period.timeRange || ''}</span>
             </div>
-            <div class="text-center py-2">
-              <span class="text-4xl font-bold ${color}">${score.toFixed(1)}</span>
-              <span class="text-slate-400 text-sm ml-1">/ 10</span>
+            <div class="hero-score">
+              <span class="hero-num" style="color:${numColor}">${score.toFixed(1)}</span>
+              <span class="hero-lbl" style="color:${lblColor}">${label.replace(/^..\s*/, '')}</span>
             </div>
-            ${scoreBar}
-            <div class="mt-2 text-center">
-              <span class="text-xs px-2 py-0.5 rounded-full ${this.getLevelBadgeClass(level)}">${label}</span>
-            </div>
-            <p class="mt-3 text-xs text-slate-400 leading-relaxed">${description || ''}</p>
+            <div class="hero-bar"><div class="${isBest ? 'hero-fill hero-fill-best' : 'hero-fill hero-fill-mid'}" style="width:${pct}%"></div></div>
+            ${description ? `<div class="hero-desc">${description}</div>` : ''}
           </div>`;
       },
 
-      buildScoreBar(score) {
-        const pct = (score / 10) * 100;
-        const color = score >= 7 ? 'bg-amber-400' : score >= 5 ? 'bg-yellow-400' : score >= 3 ? 'bg-orange-400' : 'bg-red-400';
+      buildMiniCard(emoji, name, period) {
+        if (!period || !period.score) {
+          return `<div class="mini-card" style="min-height:60px"></div>`;
+        }
+        const { score, timeRange } = period;
+        const pct = Math.min(100, (score / 10) * 100);
+        const color = score >= 7 ? '#f59e0b' : score >= 5 ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.45)';
         return `
-          <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2">
-            <div class="${color} h-1.5 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+          <div class="mini-card" onclick="UIModule.showFactors('${name}')">
+            <div class="mini-top">
+              <div class="mini-name"><span>${emoji}</span><span>${name}</span></div>
+              <span class="mini-time">${timeRange || ''}</span>
+            </div>
+            <span class="mini-score" style="color:${color}">${score.toFixed(1)}</span>
+            <div class="mini-bar"><div class="mini-fill" style="width:${pct}%;background:${score >= 7 ? 'linear-gradient(90deg,#f59e0b,#f97316)' : 'linear-gradient(90deg,rgba(255,255,255,0.2),rgba(255,255,255,0.4))'}"></div></div>
           </div>`;
       },
 
-      getLevelBadgeClass(level) {
-        const map = {
-          'excellent': 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
-          'good': 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
-          'fair': 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30',
-          'poor': 'bg-orange-500/20 text-orange-300 border border-orange-500/30',
-          'bad': 'bg-red-500/20 text-red-300 border border-red-500/30',
-          'nodata': 'bg-slate-500/20 text-slate-300 border border-slate-500/30'
-        };
-        return map[level] || map.nodata;
-      },
-
-      showFactors(title) {
-        const panel = document.getElementById('factorPanel');
-        const content = document.getElementById('factorContent');
-        panel.classList.remove('hidden');
-        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-        // Find the matching period key by title
-        const titleMap = { '今日朝霞': 'sunrise-today', '今日晚霞': 'sunset-today', '明日朝霞': 'sunrise-tomorrow', '明日晚霞': 'sunset-tomorrow' };
-        const periodKey = titleMap[title];
-        const period = App.getPeriodData(periodKey);
-        if (!period || !period.factors) return;
-
-        let html = `<p class="text-xs text-slate-500 mb-2">${title} 各因子评分</p>`;
+      buildFactorPanel(title, factors) {
+        if (!factors) return '';
+        let html = `<div class="fp-title">📊 ${title} 因子评分</div>`;
         const factorLabels = {
-          cloud: '☁️ 目标云量', offset: '☀️ 太阳方向', aqi: '🌫️ 空气质量',
-          visibility: '👁️ 能见度', rain: '🌧️ 降水加分', timeFit: '⏰ 时间贴合'
+          cloud: '☁️ 云量', offset: '☀️ 太阳方向', aqi: '🌫️ AQI',
+          visibility: '👁️ 能见度', rain: '🌧️ 降水', timeFit: '⏰ 时间'
         };
-        for (const [key, f] of Object.entries(period.factors)) {
-          const pct = (f.score || 0) * 100;
+        for (const [key, f] of Object.entries(factors)) {
+          const pct = Math.round((f.score || 0) * 100);
           const label = factorLabels[key] || key;
           let valueText = '';
           if (f.value !== null && f.value !== undefined) {
@@ -768,55 +887,57 @@ const ScoringModule = {
                         key === 'aqi' ? `${f.value}` :
                         key === 'cloud' || key === 'offset' ? `${f.value}%` : '';
           }
-          if (key === 'offset' && !f.hasData) valueText = '暂无数据';
+          if (key === 'offset' && !f.hasData) valueText = '暂无';
           html += `
-            <div class="flex items-center gap-3">
-              <span class="text-xs w-24 text-slate-400 shrink-0">${label}</span>
-              <div class="flex-1 bg-slate-700/50 rounded-full h-1.5">
-                <div class="bg-amber-400/70 h-1.5 rounded-full" style="width: ${pct}%"></div>
-              </div>
-              <span class="text-xs text-slate-400 w-16 text-right">${valueText}</span>
+            <div class="fp-row">
+              <span class="fp-label">${label}</span>
+              <div class="fp-bar"><div class="fp-fill" style="width:${pct}%"></div></div>
+              <span class="fp-value">${valueText}</span>
             </div>`;
         }
-        content.innerHTML = html;
+        return html;
       },
 
-      updateCards(data) {
-        const periods = ['sunrise-today', 'sunset-today', 'sunrise-tomorrow', 'sunset-tomorrow'];
-        const titles = { 'sunrise-today': '今日朝霞', 'sunset-today': '今日晚霞', 'sunrise-tomorrow': '明日朝霞', 'sunset-tomorrow': '明日晚霞' };
-        const emojis = { 'sunrise-today': '🌅', 'sunset-today': '🌇', 'sunrise-tomorrow': '🌅', 'sunset-tomorrow': '🌇' };
+      showFactors(title) {
+        const map = { '今日朝霞':'sunrise-today', '今日晚霞':'sunset-today', '明日朝霞':'sunrise-tomorrow', '明日晚霞':'sunset-tomorrow', '朝霞':'sunrise-tomorrow', '晚霞':'sunset-tomorrow' };
+        const key = map[title];
+        const period = App.getPeriodData(key);
+        if (!period || !period.factors) return;
 
-        for (const key of periods) {
-          const el = document.getElementById(`card-${key}`);
-          if (el) {
-            el.outerHTML = UIModule.buildCard(titles[key], emojis[key], data[key] || null);
-          }
+        const fp = document.querySelector('.factor-panel');
+        if (fp) {
+          fp.innerHTML = this.buildFactorPanel(title, period.factors);
+          fp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       },
 
       showLoading() {
-        document.getElementById('loadingSpinner')?.classList.remove('hidden');
+        const el = document.getElementById('loadingSpinner');
+        if (el) el.style.display = 'inline-block';
       },
 
       hideLoading() {
-        document.getElementById('loadingSpinner')?.classList.add('hidden');
+        const el = document.getElementById('loadingSpinner');
+        if (el) el.style.display = 'none';
       },
 
       showError(message) {
         const banner = document.getElementById('errorBanner');
         const msg = document.getElementById('errorMessage');
-        banner.classList.remove('hidden');
-        msg.textContent = message;
+        if (banner) banner.style.display = 'block';
+        if (msg) msg.textContent = message;
       },
 
       hideError() {
-        document.getElementById('errorBanner').classList.add('hidden');
+        const banner = document.getElementById('errorBanner');
+        if (banner) banner.style.display = 'none';
       },
 
       updateLocationDisplay(name, lat, lng) {
-        document.getElementById('locationName').textContent = name;
-        document.getElementById('locationCoords').textContent =
-          `北纬 ${lat.toFixed(4)}° · 东经 ${lng.toFixed(4)}°`;
+        const nameEl = document.getElementById('locationName');
+        const coordEl = document.getElementById('locationCoords');
+        if (nameEl) nameEl.textContent = name;
+        if (coordEl) coordEl.textContent = `北纬 ${lat.toFixed(4)}° · 东经 ${lng.toFixed(4)}°`;
       }
     };
     // ====== Map Module ======
@@ -896,8 +1017,10 @@ const ScoringModule = {
             const results = await LocationModule.searchCity(query);
             const container = document.getElementById('searchResults');
             container.innerHTML = results.slice(0, 5).map((r, i) =>
-              `<button class="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-700/50 transition"
-                        data-lat="${parseFloat(r.lat)}" data-lng="${parseFloat(r.lon)}" data-idx="${i}">
+              `<button class="search-result-btn"
+                        data-lat="${parseFloat(r.lat)}" data-lng="${parseFloat(r.lon)}" data-idx="${i}"
+                        style="display:block;width:100%;text-align:left;padding:10px 14px;border-radius:10px;font-size:13px;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:all 0.15s"
+                        onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
                  ${escapeHtml(r.display_name)}
                </button>`
             ).join('');
@@ -970,63 +1093,69 @@ const ScoringModule = {
           const todayAz = SunCalcModule.getSunriseSunsetAzimuth(lat, lng, today);
           const tomorrowAz = SunCalcModule.getSunriseSunsetAzimuth(lat, lng, tomorrow);
 
-          const todayData = await WeatherModule.fetchAll(
+          const allData = await WeatherModule.fetchAll(
             lat, lng,
             todayTimes.morningGolden.start, todayTimes.eveningGolden.end,
             todayAz.sunriseAzimuth, todayAz.sunsetAzimuth
           );
 
-          let tomorrowData = null;
-          if (SunCalcModule.hasValidTimes(lat, lng, tomorrow)) {
-            tomorrowData = await WeatherModule.fetchAll(
-              lat, lng,
-              tomorrowTimes.morningGolden.start, tomorrowTimes.eveningGolden.end,
-              tomorrowAz.sunriseAzimuth, tomorrowAz.sunsetAzimuth
-            );
-          }
-
+          // Today scores
           const todaySunrise = ScoringModule.calculate(
-            todayData.sunrise, todayData.weather, true,
+            allData.sunrise, allData.weather, true,
             todayTimes.morningGolden.start, todayAz.sunriseAzimuth
           );
           todaySunrise.timeRange = SunCalcModule.formatTime(todayTimes.morningGolden.start) +
             '-' + SunCalcModule.formatTime(todayTimes.morningGolden.end);
 
           const todaySunset = ScoringModule.calculate(
-            todayData.sunset, todayData.weather, false,
+            allData.sunset, allData.weather, false,
             todayTimes.eveningGolden.end, todayAz.sunsetAzimuth
           );
           todaySunset.timeRange = SunCalcModule.formatTime(todayTimes.eveningGolden.start) +
             '-' + SunCalcModule.formatTime(todayTimes.eveningGolden.end);
 
+          // Tomorrow scores (use second day of allData)
           let tomorrowSunrise = null, tomorrowSunset = null;
-          if (tomorrowData) {
+          if (SunCalcModule.hasValidTimes(lat, lng, tomorrow)) {
+            // Re-use allData but re-fetch the hourly data at tomorrow's times
+            const tomSD = WeatherModule.getHourlyData(allData.weather, tomorrowTimes.morningGolden.start);
+            const tomSS = WeatherModule.getHourlyData(allData.weather, tomorrowTimes.eveningGolden.end);
+            const tomASD = WeatherModule.getHourlyData(allData.airQuality, tomorrowTimes.morningGolden.start);
+            const tomASS = WeatherModule.getHourlyData(allData.airQuality, tomorrowTimes.eveningGolden.end);
+
             tomorrowSunrise = ScoringModule.calculate(
-              tomorrowData.sunrise, tomorrowData.weather, true,
+              { hourly: tomSD, aqi: tomASD, offsetCloud: null }, allData.weather, true,
               tomorrowTimes.morningGolden.start, tomorrowAz.sunriseAzimuth
             );
             tomorrowSunrise.timeRange = SunCalcModule.formatTime(tomorrowTimes.morningGolden.start) +
               '-' + SunCalcModule.formatTime(tomorrowTimes.morningGolden.end);
 
             tomorrowSunset = ScoringModule.calculate(
-              tomorrowData.sunset, tomorrowData.weather, false,
+              { hourly: tomSS, aqi: tomASS, offsetCloud: null }, allData.weather, false,
               tomorrowTimes.eveningGolden.end, tomorrowAz.sunsetAzimuth
             );
             tomorrowSunset.timeRange = SunCalcModule.formatTime(tomorrowTimes.eveningGolden.start) +
               '-' + SunCalcModule.formatTime(tomorrowTimes.eveningGolden.end);
           }
 
+          // Build weather bar data (current hour)
+          const currentHour = today.getHours();
+          const currentTL = allData.todayTL?.find(h => h.hour === currentHour) || allData.todayTL?.[0] || {};
+
           this._dataCache = {
             'sunrise-today': todaySunrise,
             'sunset-today': todaySunset,
             'sunrise-tomorrow': tomorrowSunrise,
-            'sunset-tomorrow': tomorrowSunset
+            'sunset-tomorrow': tomorrowSunset,
+            weather: allData.weather,
+            todayTL: allData.todayTL,
+            tomorrowTL: allData.tomorrowTL,
+            sunData: allData.sunData,
+            currentWeather: currentTL
           };
 
-          UIModule.updateCards(this._dataCache);
+          UIModule.renderFullPage(this._dataCache);
           UIModule.hideLoading();
-
-          this._autoShowBestFactor();
 
         } catch (err) {
           UIModule.hideLoading();
