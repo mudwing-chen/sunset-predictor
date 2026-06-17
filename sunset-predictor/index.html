@@ -129,6 +129,27 @@
     /* Skeleton */
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .card-skeleton { border-radius: 20px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+
+    /* Info bar (golden hour countdown + sun direction) */
+    .info-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .info-card { border-radius: 16px; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(20px); }
+    .info-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .info-countdown { font-size: 28px; font-weight: 700; letter-spacing: -1px; color: #f59e0b; }
+    .info-countdown-unit { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.35); margin-left: 2px; }
+    .info-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+    .info-dir { font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: -0.5px; }
+    .info-dir-alt { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    @media (max-width:640px) { .info-bar { grid-template-columns: 1fr; } .info-countdown { font-size: 24px; } }
+
+    /* Milky way section */
+    .mw-panel { border-radius: 20px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(20px); margin-bottom: 16px; }
+    .mw-header { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
+    .mw-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .mw-item { text-align: center; padding: 12px 8px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); }
+    .mw-item .val { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.8); }
+    .mw-item .lbl { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .mw-rating { display: inline-block; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-top: 10px; background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.15); }
+    @media (max-width:640px) { .mw-grid { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
 <body style="background:linear-gradient(170deg,#08080e 0%,#14100d 40%,#120c08 65%,#0a0a14 100%);color:white;min-height:100vh;margin:0">
@@ -354,6 +375,72 @@ const SunCalcModule = {
     return times.sunrise && times.sunset &&
            !isNaN(times.sunrise.getTime()) &&
            !isNaN(times.sunset.getTime());
+  },
+
+  // Get azimuth as compass direction text (中文)
+  azimuthToText(rad) {
+    const deg = ((rad * 180 / Math.PI) + 360) % 360;
+    const dirs = ['正北','东北偏北','东北','东北偏东','正东','东南偏东','东南','东南偏南','正南','西南偏南','西南','西南偏西','正西','西北偏西','西北','西北偏北'];
+    const idx = Math.round(deg / 22.5) % 16;
+    return dirs[idx];
+  },
+
+  // Calculate time until next event
+  getCountdown(targetDate) {
+    const now = new Date();
+    const diff = targetDate.getTime() - now.getTime();
+    if (diff <= 0) return { hours: 0, minutes: 0, seconds: 0, passed: true };
+    const totalSeconds = Math.floor(diff / 1000);
+    return {
+      hours: Math.floor(totalSeconds / 3600),
+      minutes: Math.floor((totalSeconds % 3600) / 60),
+      seconds: totalSeconds % 60,
+      passed: false
+    };
+  },
+
+  // Calculate Milky Way visibility for a location and date
+  getMilkyWayInfo(lat, lng, date = new Date()) {
+    // Galactic center rises in the southeast for northern hemisphere observers
+    // Best visibility: galactic center at least 15° above horizon, moon below horizon or thin crescent
+    const moonIllum = SunCalc.getMoonIllumination(date);
+    const moonTimes = SunCalc.getMoonTimes(date, lat, lng);
+
+    // Estimate galactic center transit time (roughly:
+    // March: rises ~2am, transits ~6am
+    // June: rises ~midnight, transits ~4am
+    // September: rises ~8pm, transits ~midnight
+    // December: rises ~4pm, transits ~8pm)
+    const month = date.getMonth();
+    const day = date.getDate();
+    // Approximate galactic center culmination hour (solar time)
+    let culmHour = 24 - (((month + 1) * 30 + day) / 365 * 24);
+    if (culmHour < 0) culmHour += 24;
+    if (culmHour >= 24) culmHour -= 24;
+
+    // Rise ~6 hours before culmination, set ~6 hours after
+    const riseHour = (culmHour - 6 + 24) % 24;
+    const setHour = (culmHour + 6) % 24;
+
+    // Core visible window: 2 hours before to 2 hours after culmination
+    const bestStartHour = (culmHour - 2 + 24) % 24;
+    const bestEndHour = (culmHour + 2) % 24;
+
+    // Moon factor: new moon (fraction < 0.2) is best
+    const moonFree = moonIllum.fraction < 0.3;
+    const moonGood = moonIllum.fraction < 0.5;
+
+    return {
+      visible: true,
+      riseHour: riseHour,
+      setHour: setHour,
+      culmHour: culmHour,
+      bestStart: bestStartHour,
+      bestEnd: bestEndHour,
+      moonPhase: moonIllum.fraction,
+      moonPhaseText: moonIllum.fraction < 0.1 ? '新月🌑最佳' : moonIllum.fraction < 0.3 ? '月光明亮度极低🌒' : moonIllum.fraction < 0.5 ? '月光适中🌓' : '月光过亮🌔不推荐',
+      rating: moonFree ? '⭐ 适合' : moonGood ? '可尝试' : '🌙 月光影响大'
+    };
   }
 };
     // ====== Weather Module ======
@@ -824,6 +911,10 @@ const ScoringModule = {
             <div class="weather-item"><div class="val">${wind}</div><div class="lbl">风速 km/h</div></div>
             <div class="weather-item"><div class="val">${moonEmoji}</div><div class="lbl">月相 ${moonPct}%</div></div>
           </div>`,
+          // Golden hour countdown + Sun direction
+          this.buildInfoBar(data),
+          // Milky Way
+          this.buildMilkyWaySection(data),
           // Cloud timeline
           tl.length > 0 ? `<div class="tl-panel">
             <div class="tl-header"><span class="tl-title">☁️ 云量时间线</span><span class="tl-now">现在 ▶</span></div>
@@ -936,6 +1027,81 @@ const ScoringModule = {
           fp.innerHTML = this.buildFactorPanel(title, period.factors);
           fp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
+      },
+
+      buildInfoBar(data) {
+        const lat = LocationModule.state.latitude;
+        const lng = LocationModule.state.longitude;
+        if (!lat) return '';
+        const today = new Date();
+        const times = SunCalcModule.getPhotoTimes(lat, lng, today);
+        const az = SunCalcModule.getSunriseSunsetAzimuth(lat, lng, today);
+        const eveningStart = times.eveningGolden.start;
+        const sunriseEnd = times.morningGolden.end;
+        const now = today.getTime();
+
+        const sunriseAzText = SunCalcModule.azimuthToText(az.sunriseAzimuth);
+        const sunsetAzText = SunCalcModule.azimuthToText(az.sunsetAzimuth);
+        const sunriseAlt = (az.sunriseAltitude * 180 / Math.PI).toFixed(1);
+        const sunsetAlt = (az.sunsetAltitude * 180 / Math.PI).toFixed(1);
+        const fmt = SunCalcModule.formatTime.bind(SunCalcModule);
+
+        if (now < times.morningGolden.start.getTime()) {
+          const remaining = times.morningGolden.start.getTime() - now;
+          const hours = Math.floor(remaining / 3600000);
+          const mins = Math.floor((remaining % 3600000) / 60000);
+          return `<div class="info-bar"><div class="info-card"><div class="info-label">⏳ 距离朝霞</div><div class="info-countdown">${hours}<span class="info-countdown-unit">时</span> ${mins}<span class="info-countdown-unit">分</span></div><div class="info-sub">${fmt(times.morningGolden.start)} — ${fmt(sunriseEnd)}</div></div><div class="info-card"><div class="info-label">🧭 日出方位</div><div class="info-dir">${sunriseAzText}</div><div class="info-dir-alt">高度 ${sunriseAlt}°</div></div></div>`;
+        }
+        if (now < sunriseEnd.getTime()) {
+          const remaining = sunriseEnd.getTime() - now;
+          const mins = Math.floor(remaining / 60000);
+          return `<div class="info-bar"><div class="info-card"><div class="info-label">⏳ 朝霞进行中</div><div class="info-countdown">${mins}<span class="info-countdown-unit">分钟</span></div><div class="info-sub">距离朝霞黄金时刻结束</div></div><div class="info-card"><div class="info-label">🧭 日出方位</div><div class="info-dir">${sunriseAzText}</div><div class="info-dir-alt">高度 ${sunriseAlt}°</div></div></div>`;
+        }
+        if (now < times.eveningGolden.start.getTime()) {
+          const remaining = times.eveningGolden.start.getTime() - now;
+          const hours = Math.floor(remaining / 3600000);
+          const mins = Math.floor((remaining % 3600000) / 60000);
+          return `<div class="info-bar"><div class="info-card"><div class="info-label">⏳ 距离晚霞</div><div class="info-countdown">${hours}<span class="info-countdown-unit">时</span> ${mins}<span class="info-countdown-unit">分</span></div><div class="info-sub">${fmt(times.eveningGolden.start)} — ${fmt(times.eveningGolden.end)}</div></div><div class="info-card"><div class="info-label">🧭 日落方位</div><div class="info-dir">${sunsetAzText}</div><div class="info-dir-alt">高度 ${sunsetAlt}°</div></div></div>`;
+        }
+        const tomStart = fmt(times.morningGolden.start);
+        return `<div class="info-bar"><div class="info-card"><div class="info-label">⏳ 今日黄金时刻已过</div><div class="info-sub">明天 ${tomStart} 见</div></div></div>`;
+      },
+
+      buildMilkyWaySection(data) {
+        const lat = LocationModule.state.latitude;
+        const lng = LocationModule.state.longitude;
+        if (!lat) return '';
+        const mw = SunCalcModule.getMilkyWayInfo(lat, lng);
+
+        const fmtH = (h) => {
+          const hi = Math.floor(h);
+          const mi = Math.round((h - hi) * 60);
+          return `${String(hi).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;
+        };
+
+        return `<div class="mw-panel">
+          <div class="mw-header">🌌 银河可见性</div>
+          <div class="mw-grid">
+            <div class="mw-item">
+              <div class="val">${fmtH(mw.riseHour)}</div>
+              <div class="lbl">升起</div>
+            </div>
+            <div class="mw-item">
+              <div class="val">${fmtH(mw.culmHour)}</div>
+              <div class="lbl">最佳中天</div>
+            </div>
+            <div class="mw-item">
+              <div class="val">${fmtH(mw.setHour)}</div>
+              <div class="lbl">落下</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:8px">
+            <span class="mw-rating">${mw.moonPhaseText} · ${mw.rating}</span>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;margin-top:8px">
+            最佳拍摄窗口: ${fmtH(mw.bestStart)} — ${fmtH(mw.bestEnd)} · 月相 ${Math.round(mw.moonPhase * 100)}%
+          </div>
+        </div>`;
       },
 
       showLoading() {
