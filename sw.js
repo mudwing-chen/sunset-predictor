@@ -1,2 +1,17 @@
-// Service Worker - disabled to prevent caching issues
-// Previously cached stale versions caused "lost network connection" errors on iOS
+// Service Worker - self-cleaning: deletes all caches and unregisters
+self.addEventListener('install', function() { self.skipWaiting() })
+self.addEventListener('activate', function(e) {
+  e.waitUntil(
+    caches.keys().then(function(names) {
+      return Promise.all(names.map(function(n) { return caches.delete(n) }))
+    }).then(function() {
+      return self.registration.unregister()
+    }).then(function() {
+      // Force reload to bypass SW entirely
+      return clients.matchAll().then(function(clients) {
+        clients.forEach(function(c) { c.navigate(c.url) })
+      })
+    })
+  )
+})
+self.addEventListener('fetch', function(e) { e.respondWith(fetch(e.request)) })
