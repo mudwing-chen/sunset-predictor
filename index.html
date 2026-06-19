@@ -73,9 +73,9 @@
    background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s,color 0.3s
   }
   .bg-glow{position:fixed;inset:0;z-index:-1;background:var(--glow);transition:background 0.3s}
-  .page{max-width:820px;margin:0 auto;padding:24px 16px 48px}
+  .page{max-width:960px;margin:0 auto;padding:24px 16px 48px}
   @media(min-width:768px){.page{padding:28px 24px 48px;max-width:720px}}
-  .label-xs{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:2px}
+  .label-xs{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:2px}
   .g2{display:grid;grid-template-columns:1fr;gap:10px}
   .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -154,10 +154,10 @@
 
   .wb{padding:14px 8px;text-align:center;border-radius:16px;background:var(--bg-card);border:1px solid var(--border-light)}
   .wb-v{font-size:17px;font-weight:700;color:var(--text)}
-  .wb-l{font-size:9px;color:var(--text-tertiary);margin-top:4px;text-transform:uppercase;letter-spacing:0.8px}
+  .wb-l{font-size:9px;color:var(--text-tertiary);margin-top:4px;letter-spacing:0.8px}
 
   .info{padding:16px;border-radius:18px;background:var(--bg-card);border:1px solid var(--border-light)}
-  .info-l{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+  .info-l{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:1.5px;margin-bottom:8px}
   .info-cd{font-size:28px;font-weight:700;letter-spacing:-1px;color:var(--accent)}
   .info-cd-u{font-size:13px;font-weight:500;color:var(--text-tertiary);margin-left:2px}
   .info-sub{font-size:11px;color:var(--text-secondary);margin-top:4px}
@@ -197,7 +197,7 @@
   .tl-ld>div{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text-quaternary)}
 
   .fp{padding:18px;border-radius:20px;margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border-light)}
-  .fp-h{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+  .fp-h{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:2px;margin-bottom:14px}
   .fp-r{display:flex;align-items:center;gap:12px;margin-bottom:7px}
   .fp-l{font-size:12px;font-weight:500;color:var(--text-secondary);width:80px;flex-shrink:0}
   .fp-b{flex:1;height:4px;border-radius:4px;background:var(--border-light);overflow:hidden}
@@ -214,10 +214,10 @@
   .m-fill{height:100%;border-radius:3px}
 
   .mw{padding:18px;border-radius:20px;margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border-light)}
-  .mw-h{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+  .mw-h{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:2px;margin-bottom:14px}
   .mw-it{padding:12px 8px;text-align:center;border-radius:14px;background:var(--bg-card);border:1px solid var(--border-light)}
   .mw-v{font-size:14px;font-weight:600;color:var(--text)}
-  .mw-l{font-size:9px;color:var(--text-tertiary);margin-top:4px;text-transform:uppercase;letter-spacing:0.8px}
+  .mw-l{font-size:9px;color:var(--text-tertiary);margin-top:4px;letter-spacing:0.8px}
   .mw-b{display:inline-block;font-size:11px;font-weight:500;padding:3px 12px;border-radius:20px;margin-top:8px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
   .mw-n{font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:8px}
 
@@ -507,21 +507,21 @@ const UIModule={
     const pmS=Math.round((cs(pc)*0.5+vs2(vv)*0.3+a2(av)*0.2)*10);
     dayScores.push({label:lb,date:d,amS,pmS,ac,pc,ah,am,al,ph,pm,pl,vv,av})
    }
-   trendHtml='<div class="label-xs gap" style="margin-top:24px">未来趋势 / Forecast</div><div class="tr-grid">';
+   trendHtml='<div class="label-xs gap" style="margin-top:24px">未来趋势 Forecast</div><div class="tr-grid">';
    for(const ds of dayScores){
     const ac2=ds.amS>=7?'#f97316':'#6b7280',pc2=ds.pmS>=7?'#f97316':'#6b7280';
     const dayStr=ds.date.toLocaleDateString('zh-CN',{month:'short',day:'numeric'});
     trendHtml+='<div class="tr-card"><div class="tr-hdr"><span>'+ds.label+'</span><span class="tr-date">'+dayStr+'</span></div>'+
      '<div class="tr-stitle"><span>🌅 朝霞</span><span class="tr-bdg" style="color:'+ac2+'">'+ds.amS+'<span class="tr-bdg-s">/10</span></span></div>'+
-     '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云 / High</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ah)+'%;background:#f97316"></div></div><span class="tr-bv">'+Math.round(ds.ah)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">中云 / Mid</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.am)+'%;background:#f59e0b"></div></div><span class="tr-bv">'+Math.round(ds.am)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">低云 / Low</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.al)+'%;background:#64748b"></div></div><span class="tr-bv">'+Math.round(ds.al)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">能见度 / Vis</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%;background:#22c55e"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
+     '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云 High</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ah)+'%;background:#f97316"></div></div><span class="tr-bv">'+Math.round(ds.ah)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">中云 Mid</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.am)+'%;background:#f59e0b"></div></div><span class="tr-bv">'+Math.round(ds.am)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">低云 Low</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.al)+'%;background:#64748b"></div></div><span class="tr-bv">'+Math.round(ds.al)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">能见度 Vis</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%;background:#22c55e"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
      '<div class="tr-stitle"><span>🌇 晚霞</span><span class="tr-bdg" style="color:'+pc2+'">'+ds.pmS+'<span class="tr-bdg-s">/10</span></span></div>'+
-     '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云 / High</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ph)+'%;background:#f97316"></div></div><span class="tr-bv">'+Math.round(ds.ph)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">中云 / Mid</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pm)+'%;background:#f59e0b"></div></div><span class="tr-bv">'+Math.round(ds.pm)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">低云 / Low</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pl)+'%;background:#64748b"></div></div><span class="tr-bv">'+Math.round(ds.pl)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">能见度 / Vis</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%;background:#22c55e"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
+     '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云 High</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ph)+'%;background:#f97316"></div></div><span class="tr-bv">'+Math.round(ds.ph)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">中云 Mid</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pm)+'%;background:#f59e0b"></div></div><span class="tr-bv">'+Math.round(ds.pm)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">低云 Low</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pl)+'%;background:#64748b"></div></div><span class="tr-bv">'+Math.round(ds.pl)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">能见度 Vis</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%;background:#22c55e"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
      '</div>'
    }
    trendHtml+='</div>'
@@ -529,12 +529,12 @@ const UIModule={
 
   const secs=[
    '<div class="g2 gap">'+hT+hS+'</div>',
-   '<div class="g4 gap-sm">'+'<div class="wb"><div class="wb-v">'+temp+'</div><div class="wb-l">温度 / Temp</div></div><div class="wb"><div class="wb-v">'+hum+'</div><div class="wb-l">湿度 / Humid</div></div><div class="wb"><div class="wb-v">'+wind+'</div><div class="wb-l">风速 / Wind</div></div><div class="wb"><div class="wb-v">'+moonEmoji+'</div><div class="wb-l">月相 '+moonPct+'%</div></div></div>',
+   '<div class="g4 gap-sm">'+'<div class="wb"><div class="wb-v">'+temp+'</div><div class="wb-l">温度 Temp</div></div><div class="wb"><div class="wb-v">'+hum+'</div><div class="wb-l">湿度 Humid</div></div><div class="wb"><div class="wb-v">'+wind+'</div><div class="wb-l">风速 Wind</div></div><div class="wb"><div class="wb-v">'+moonEmoji+'</div><div class="wb-l">月相 '+moonPct+'%</div></div></div>',
    this._ib(),
    this._mw(),
-   tl.length>0?'<div class="tl"><div class="tl-h"><span class="label-xs">云量时间线 / Cloud Timeline</span><span style="font-size:10px;color:var(--accent);font-weight:500">现在 ▶</span></div><div class="tl-chart">'+tlHtml+'</div><div class="tl-ld"><div><div class="tl-hi" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>高云 / High</div><div><div class="tl-md" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>中云 / Mid</div><div><div class="tl-lo" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>低云 / Low</div></div></div>':'',
+   tl.length>0?'<div class="tl"><div class="tl-h"><span class="label-xs">云量时间线 CloudTimeline</span><span style="font-size:10px;color:var(--accent);font-weight:500">现在 ▶</span></div><div class="tl-chart">'+tlHtml+'</div><div class="tl-ld"><div><div class="tl-hi" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>高云 High</div><div><div class="tl-md" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>中云 Mid</div><div><div class="tl-lo" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>低云 Low</div></div></div>':'',
    best?('<div class="fp"><div class="fp-h">'+bestT+'</div>'+this._bf(bestT,best.factors)+'</div>'):'',
-   '<div class="hr"><span class="label-xs">明日 / Tomorrow</span></div>',
+   '<div class="hr"><span class="label-xs">明日 Tomorrow</span></div>',
    '<div class="g2 gap-sm">'+mT+mS+'</div>',
    trendHtml
   ];
@@ -554,7 +554,7 @@ const UIModule={
   return'<div class="m-card" onclick="UIModule._sf(\''+t+'\')"><div class="m-row"><span class="m-tag">'+e+' '+t+'</span><span class="m-time">'+(p.timeRange||'')+'</span></div><span class="m-score" style="color:'+c+'">'+p.score.toFixed(1)+'</span><div class="m-bar"><div class="m-fill" style="width:'+pct+'%;background:'+(p.score>=7?'var(--bar-warm)':'var(--bar-cool)')+'"></div></div></div>'
  },
  _bf(t,f){
-  if(!f)return'';let h='';const l={cloud:'云量 / Cloud',offset:'太阳方向 / Sun Dir',aod:'气溶胶 / AOD',humidity:'湿度 / Humid',aqi:'AQI',visibility:'能见度 / Vis',rain:'降水 / Rain',timeFit:'时间 / Time'};
+  if(!f)return'';let h='';const l={cloud:'云量 Cloud',offset:'太阳方向 SunDir',aod:'气溶胶 AOD',humidity:'湿度 Humid',aqi:'AQI ',visibility:'能见度 Vis',rain:'降水 Rain',timeFit:'时间 Time'};
   for(const[k,v]of Object.entries(f)){const pct=Math.round((v.score||0)*100);let vt='';if(v.value!==null&&v.value!==undefined){vt=k==='aod'?v.value.toFixed(2):k==='visibility'?(v.value/1000).toFixed(0)+'km':k==='aqi'?v.value+'':k==='humidity'?v.value+'%':(k==='cloud'||k==='offset')?v.value+'%':''}if(k==='offset'&&!v.hasData)vt='暂无';h+='<div class="fp-r"><span class="fp-l">'+(l[k]||k)+'</span><div class="fp-b"><div class="fp-f" style="width:'+pct+'%"></div></div><span class="fp-v">'+vt+'</span></div>'}return h
  },
  _sf(t){
@@ -570,16 +570,16 @@ const UIModule={
   const saText=SunCalcModule.azimuthToText(az.sunriseAzimuth),ssText=SunCalcModule.azimuthToText(az.sunsetAzimuth);
   const saAlt=(az.sunriseAltitude*180/Math.PI).toFixed(1),ssAlt=(az.sunsetAltitude*180/Math.PI).toFixed(1);
   const ms=t.morningGolden.start.getTime(),me=t.morningGolden.end.getTime(),es=t.eveningGolden.start.getTime();
-  if(now<ms){const r=ms-now,h=Math.floor(r/36e5),m=Math.floor((r%36e5)/6e4);return'<div class="g2 gap-sm"><div class="info"><div class="info-l">距离朝霞 / Until Sunrise</div><div class="info-cd">'+h+'<span class="info-cd-u">时</span> '+m+'<span class="info-cd-u">分</span></div><div class="info-sub">'+fmt(t.morningGolden.start)+' — '+fmt(t.morningGolden.end)+'</div></div><div class="info"><div class="info-l">日出方位 / Sunrise Dir</div><div class="info-dir">'+saText+'</div><div class="info-da">高度 / Alt '+saAlt+'°</div></div></div>'}
-  if(now<me){const r=me-now,m=Math.floor(r/6e4);return'<div class="g2 gap-sm"><div class="info"><div class="info-l">朝霞进行中 / Sunrise Active</div><div class="info-cd">'+m+'<span class="info-cd-u">分钟</span></div><div class="info-sub">距离结束 / Ending</div></div><div class="info"><div class="info-l">日出方位 / Sunrise Dir</div><div class="info-dir">'+saText+'</div><div class="info-da">高度 / Alt '+saAlt+'°</div></div></div>'}
-  if(now<es){const r=es-now,h=Math.floor(r/36e5),m=Math.floor((r%36e5)/6e4);return'<div class="g2 gap-sm"><div class="info"><div class="info-l">距离晚霞 / Until Sunset</div><div class="info-cd">'+h+'<span class="info-cd-u">时</span> '+m+'<span class="info-cd-u">分</span></div><div class="info-sub">'+fmt(t.eveningGolden.start)+' — '+fmt(t.eveningGolden.end)+'</div></div><div class="info"><div class="info-l">日落方位 / Sunset Dir</div><div class="info-dir">'+ssText+'</div><div class="info-da">高度 / Alt '+ssAlt+'°</div></div></div>'}
+  if(now<ms){const r=ms-now,h=Math.floor(r/36e5),m=Math.floor((r%36e5)/6e4);return'<div class="g2 gap-sm"><div class="info"><div class="info-l">距离朝霞 Until Sunrise</div><div class="info-cd">'+h+'<span class="info-cd-u">时</span> '+m+'<span class="info-cd-u">分</span></div><div class="info-sub">'+fmt(t.morningGolden.start)+' — '+fmt(t.morningGolden.end)+'</div></div><div class="info"><div class="info-l">日出方位 Sunrise Dir</div><div class="info-dir">'+saText+'</div><div class="info-da">高度 / Alt '+saAlt+'°</div></div></div>'}
+  if(now<me){const r=me-now,m=Math.floor(r/6e4);return'<div class="g2 gap-sm"><div class="info"><div class="info-l">朝霞进行中 / Sunrise Active</div><div class="info-cd">'+m+'<span class="info-cd-u">分钟</span></div><div class="info-sub">距离结束 / Ending</div></div><div class="info"><div class="info-l">日出方位 Sunrise Dir</div><div class="info-dir">'+saText+'</div><div class="info-da">高度 / Alt '+saAlt+'°</div></div></div>'}
+  if(now<es){const r=es-now,h=Math.floor(r/36e5),m=Math.floor((r%36e5)/6e4);return'<div class="g2 gap-sm"><div class="info"><div class="info-l">距离晚霞 Until Sunset</div><div class="info-cd">'+h+'<span class="info-cd-u">时</span> '+m+'<span class="info-cd-u">分</span></div><div class="info-sub">'+fmt(t.eveningGolden.start)+' — '+fmt(t.eveningGolden.end)+'</div></div><div class="info"><div class="info-l">日落方位 Sunset Dir</div><div class="info-dir">'+ssText+'</div><div class="info-da">高度 / Alt '+ssAlt+'°</div></div></div>'}
   return'<div class="g2 gap-sm"><div class="info"><div class="info-l">今日已过 / Passed</div><div class="info-sub">明天 '+fmt(t.morningGolden.start)+' 见</div></div></div>'
  },
  _mw(){
   const lat=LocationModule.state.latitude;if(!lat)return'';
   const m=SunCalcModule.getMilkyWayInfo(lat,LocationModule.state.longitude);
   const fh=h=>{const hi=Math.floor(h),mi=Math.round((h-hi)*60);return String(hi).padStart(2,'0')+':'+String(mi).padStart(2,'0')};
-  return'<div class="mw"><div class="mw-h">银河可见性 / Milky Way</div><div class="g3"><div class="mw-it"><div class="mw-v">'+fh(m.riseHour)+'</div><div class="mw-l">升起 / Rise</div></div><div class="mw-it"><div class="mw-v">'+fh(m.culmHour)+'</div><div class="mw-l">最佳中天 / Transit</div></div><div class="mw-it"><div class="mw-v">'+fh(m.setHour)+'</div><div class="mw-l">落下 / Set</div></div></div><div style="text-align:center"><span class="mw-b">'+m.moonPhaseText+' · '+m.rating+'</span></div><div class="mw-n">最佳拍摄 / Best '+fh(m.bestStart)+' — '+fh(m.bestEnd)+' · 月相 '+Math.round(m.moonPhase*100)+'%</div></div>'
+  return'<div class="mw"><div class="mw-h">银河可见性 MilkyWay</div><div class="g3"><div class="mw-it"><div class="mw-v">'+fh(m.riseHour)+'</div><div class="mw-l">升起 Rise</div></div><div class="mw-it"><div class="mw-v">'+fh(m.culmHour)+'</div><div class="mw-l">最佳中天 Transit</div></div><div class="mw-it"><div class="mw-v">'+fh(m.setHour)+'</div><div class="mw-l">落下 Set</div></div></div><div style="text-align:center"><span class="mw-b">'+m.moonPhaseText+' · '+m.rating+'</span></div><div class="mw-n">最佳拍摄 / Best '+fh(m.bestStart)+' — '+fh(m.bestEnd)+' · 月相 '+Math.round(m.moonPhase*100)+'%</div></div>'
  },
  showLoading(){const e=$('loadingSpinner');if(e)e.style.display='inline-block'},
  hideLoading(){const e=$('loadingSpinner');if(e)e.style.display='none'},
