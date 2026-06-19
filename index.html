@@ -513,15 +513,15 @@ const UIModule={
     const dayStr=ds.date.toLocaleDateString('zh-CN',{month:'short',day:'numeric'});
     trendHtml+='<div class="tr-card"><div class="tr-hdr"><span>'+ds.label+'</span><span class="tr-date">'+dayStr+'</span></div>'+
      '<div class="tr-stitle"><span>🌅 朝霞</span><span class="tr-bdg" style="color:'+ac2+'">'+ds.amS+'<span class="tr-bdg-s">/10</span></span></div>'+
-     '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云 High</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ah)+'%;background:#f97316"></div></div><span class="tr-bv">'+Math.round(ds.ah)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">中云 Mid</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.am)+'%;background:#f59e0b"></div></div><span class="tr-bv">'+Math.round(ds.am)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">低云 Low</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.al)+'%;background:#64748b"></div></div><span class="tr-bv">'+Math.round(ds.al)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">能见度 Vis</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%;background:#22c55e"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
+     '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云 High</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ah)+'%;background:#8b5cf6"></div></div><span class="tr-bv">'+Math.round(ds.ah)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">中云 Mid</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.am)+'%;background:#06b6d4"></div></div><span class="tr-bv">'+Math.round(ds.am)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">低云 Low</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.al)+'%;background:#6b7280"></div></div><span class="tr-bv">'+Math.round(ds.al)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">能见度 Vis</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%;background:#10b981"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
      '<div class="tr-stitle"><span>🌇 晚霞</span><span class="tr-bdg" style="color:'+pc2+'">'+ds.pmS+'<span class="tr-bdg-s">/10</span></span></div>'+
-     '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云 High</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ph)+'%;background:#f97316"></div></div><span class="tr-bv">'+Math.round(ds.ph)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">中云 Mid</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pm)+'%;background:#f59e0b"></div></div><span class="tr-bv">'+Math.round(ds.pm)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">低云 Low</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pl)+'%;background:#64748b"></div></div><span class="tr-bv">'+Math.round(ds.pl)+'%</span></div>'+
-     '<div class="tr-b"><span class="tr-bl">能见度 Vis</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%;background:#22c55e"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
+     '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云 High</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ph)+'%;background:#8b5cf6"></div></div><span class="tr-bv">'+Math.round(ds.ph)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">中云 Mid</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pm)+'%;background:#06b6d4"></div></div><span class="tr-bv">'+Math.round(ds.pm)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">低云 Low</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pl)+'%;background:#6b7280"></div></div><span class="tr-bv">'+Math.round(ds.pl)+'%</span></div>'+
+     '<div class="tr-b"><span class="tr-bl">能见度 Vis</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%;background:#10b981"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
      '</div>'
    }
    trendHtml+='</div>'
