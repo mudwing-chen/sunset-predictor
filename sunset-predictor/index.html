@@ -412,12 +412,12 @@ const WeatherModule = {
   W:'https://api.open-meteo.com/v1/forecast', AQ:'https://air-quality-api.open-meteo.com/v1/air-quality',
   async fetchWeather(lat,lng) {
     const p=new URLSearchParams({latitude:lat,longitude:lng,timezone:'auto',forecast_days:7,
-      hourly:'temperature_2m,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,precipitation,wind_speed_10m,wind_direction_10m',
+      hourly:'temperature_2m,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,precipitation,wind_speed_10m,wind_direction_10m,cape',
       daily:'temperature_2m_max,temperature_2m_min,precipitation_sum'});
     const r=await fetch(`${this.W}?${p}`); if(!r.ok) throw new Error(`天气数据获取失败 (${r.status})`); return await r.json();
   },
   async fetchAirQuality(lat,lng) {
-    const p=new URLSearchParams({latitude:lat,longitude:lng,hourly:'european_aqi',timezone:'auto',forecast_days:7});
+    const p=new URLSearchParams({latitude:lat,longitude:lng,hourly:'european_aqi,aerosol_optical_depth',timezone:'auto',forecast_days:7});
     const r=await fetch(`${this.AQ}?${p}`); if(!r.ok) return null; return await r.json();
   },
   getMoonPhase(d) { return SunCalc.getMoonIllumination(d); },
@@ -461,56 +461,66 @@ const WeatherModule = {
     if(sunsetAz!==null){const op=this.calculateOffset(lat,lng,sunsetAz,200);const ow=await this.fetchOffsetWeather(op.lat,op.lng);if(ow) oss=this.getHourlyData(ow,sunsetTime);}
     return {weather,airQuality,todayTL:this.buildTimeline(weather,'today'),tomorrowTL:this.buildTimeline(weather,'tomorrow'),
       sunData:{moonPhase:this.getMoonPhase(new Date()),moonPhaseTomorrow:this.getMoonPhase(new Date(Date.now()+86400000))},
-      sunrise:{hourly:this.getHourlyData(weather,sunriseTime),aqi:airQuality?this.getHourlyData(airQuality,sunriseTime):null,offsetCloud:osr},
-      sunset:{hourly:this.getHourlyData(weather,sunsetTime),aqi:airQuality?this.getHourlyData(airQuality,sunsetTime):null,offsetCloud:oss}};
+      sunrise:{hourly:this.getHourlyData(weather,sunriseTime),aqi:airQuality?this.getHourlyData(airQuality,sunriseTime):null,offsetCloud:osr,
+        aod:airQuality?.hourly?.aerosol_optical_depth?this.getHourlyData(airQuality,sunriseTime)?.aerosol_optical_depth:null,
+        humidity:weather.hourly?.relative_humidity_2m?this.getHourlyData(weather,sunriseTime)?.relative_humidity_2m:null},
+      sunset:{hourly:this.getHourlyData(weather,sunsetTime),aqi:airQuality?this.getHourlyData(airQuality,sunsetTime):null,offsetCloud:oss,
+        aod:airQuality?.hourly?.aerosol_optical_depth?this.getHourlyData(airQuality,sunsetTime)?.aerosol_optical_depth:null,
+        humidity:weather.hourly?.relative_humidity_2m?this.getHourlyData(weather,sunsetTime)?.relative_humidity_2m:null}};
   }
 };
 
-// ====== Scoring Module ======
+// ====== Scoring Module (v2 — 论文 driven) ======
 const ScoringModule = {
-  scoreCloud(c) { if(c===null||c===undefined) return 0.5; if(c<5) return 0.1; if(c<15) return 0.3; if(c<25) return 0.5; if(c<=60) return 1.0; if(c<=80) return 0.7; return 0.3; },
-  scoreCloudOffset(tc,oc,has) { if(!has||oc===null||oc===undefined) return 0.7; if(!(tc>=15&&tc<=80)) return 0.5; if(oc<15) return 1.0; if(oc<40) return 0.8; if(oc<70) return 0.5; return 0.2; },
-  scoreAQI(a) { if(a===null||a===undefined) return 0.6; if(a<20) return 0.4; if(a<=50) return 0.6; if(a<=100) return 0.9; if(a<=150) return 0.6; if(a<=200) return 0.3; return 0.1; },
-  scoreVisibility(v) { if(v===null||v===undefined) return 0.6; const k=v/1000; if(k>20) return 1.0; if(k>10) return 0.8; if(k>5) return 0.5; if(k>2) return 0.3; return 0.1; },
+  scoreCloudLayers(high,mid,low) {
+    const hs=high===null||high===undefined?0.5:high>=20&&high<=70?1.0:high<10?0.3:high>80?0.4:0.7;
+    const ms=mid===null||mid===undefined?0.5:mid>=20&&mid<=60?0.7:mid<10?0.5:mid>80?0.3:0.6;
+    const ls=low===null||low===undefined?0.5:low>=20?0.2:low>10?0.4:0.7;
+    return hs*0.5+ms*0.3+ls*0.2;
+  },
+  scoreTotalCloud(c) { if(c===null||c===undefined) return 0.5; if(c<5) return 0.1; if(c<15) return 0.3; if(c<25) return 0.5; if(c<=60) return 1.0; if(c<=80) return 0.7; return 0.3; },
+  scoreCloudOffset(tc,oc,has) { if(!has||oc===null||oc===undefined) return 0.6; if(!(tc>=15&&tc<=80)) return 0.5; if(oc<15) return 1.0; if(oc<40) return 0.8; if(oc<70) return 0.5; return 0.2; },
+  scoreAOD(aod) { if(aod===null||aod===undefined) return 0.5; if(aod<0.05) return 0.3; if(aod<=0.15) return 0.8; if(aod<=0.30) return 1.0; if(aod<=0.50) return 0.7; if(aod<=0.80) return 0.4; return 0.2; },
+  scoreHumidity(h) { if(h===null||h===undefined) return 0.5; if(h<30) return 0.3; if(h<=50) return 0.6; if(h<=70) return 1.0; if(h<=85) return 0.8; if(h<=95) return 0.4; return 0.2; },
+  scoreAQI(a) { if(a===null||a===undefined) return 0.5; if(a<20) return 0.3; if(a<=50) return 0.5; if(a<=100) return 0.9; if(a<=150) return 0.6; if(a<=200) return 0.3; return 0.1; },
+  scoreVisibility(v) { if(v===null||v===undefined) return 0.5; const k=v/1000; if(k>20) return 1.0; if(k>10) return 0.8; if(k>5) return 0.5; if(k>2) return 0.3; return 0.1; },
   scoreRainBonus(wd,tt) {
     if(!wd||!wd.hourly||!wd.hourly.precipitation) return 0;
-    const times=wd.hourly.time, precip=wd.hourly.precipitation, ti=this._fic(times,tt);
-    let hr=false;
+    const times=wd.hourly.time,precip=wd.hourly.precipitation,ti=this._fic(times,tt); let hr=false;
     for(let i=Math.max(0,ti-6);i<ti;i++){if(precip[i]>0.5) hr=true;}
-    const tp=precip[ti]||0, nc=tp<0.3;
-    if(hr&&nc) return 1.0; if(hr) return 0.5; return 0;
+    const tp=precip[ti]||0,nc=tp<0.3; if(hr&&nc) return 1.0; if(hr) return 0.5; return 0;
   },
-  _fic(times,tt) { const tms=tt.getTime(); let ci=0,cd=Infinity; for(let i=0;i<times.length;i++){const d=Math.abs(new Date(times[i]).getTime()-tms); if(d<cd){cd=d;ci=i;}} return ci; },
-  scoreTimeFit(hd,st) { if(!hd||!hd.time) return 0.5; const d=Math.abs(new Date(hd.time).getTime()-st.getTime())/60000; if(d<=30) return 1.0; if(d<=60) return 0.8; if(d<=120) return 0.5; return 0.3; },
-  calculate(data,wf,isSunrise,sunTime,sunAz) {
+  _fic(times,tt){const tms=tt.getTime();let ci=0,cd=Infinity;for(let i=0;i<times.length;i++){const d=Math.abs(new Date(times[i]).getTime()-tms);if(d<cd){cd=d;ci=i;}}return ci;},
+  scoreTimeFit(hd,st){if(!hd||!hd.time)return 0.5;const d=Math.abs(new Date(hd.time).getTime()-st.getTime())/60000;if(d<=30)return 1.0;if(d<=60)return 0.8;if(d<=120)return 0.5;return 0.3;},
+  calculate(data,wf,isSunrise,sunTime,sunAz){
     if(!data) return {score:0,level:'nodata',label:'数据不足',desc:'',factors:{}};
-    const cs=this.scoreCloud(data.hourly?.cloud_cover);
+    const cl=this.scoreCloudLayers(data.hourly?.cloud_cover_high,data.hourly?.cloud_cover_mid,data.hourly?.cloud_cover_low);
+    const tc=this.scoreTotalCloud(data.hourly?.cloud_cover);
     const os=this.scoreCloudOffset(data.hourly?.cloud_cover,data.offsetCloud?.cloud_cover,data.offsetCloud!==null);
-    const as=this.scoreAQI(data.aqi?.european_aqi);
-    const vs=this.scoreVisibility(data.hourly?.visibility);
-    const rb=this.scoreRainBonus(wf,sunTime);
-    const ts=this.scoreTimeFit(data.hourly,sunTime);
-    const W={c:0.30,o:0.20,a:0.15,v:0.15,r:0.10,t:0.10};
-    const total=cs*W.c+os*W.o+as*W.a+vs*W.v+rb*W.r+ts*W.t;
+    const aod=this.scoreAOD(data.aod); const hs=this.scoreHumidity(data.humidity);
+    const aq=this.scoreAQI(data.aqi?.european_aqi); const vs=this.scoreVisibility(data.hourly?.visibility);
+    const rb=this.scoreRainBonus(wf,sunTime); const ts=this.scoreTimeFit(data.hourly,sunTime);
+    const W={cl:0.25,tc:0.10,o:0.15,aod:0.15,h:0.10,aq:0.10,v:0.05,r:0.05,t:0.05};
+    const total=cl*W.cl+tc*W.tc+os*W.o+aod*W.aod+hs*W.h+aq*W.aq+vs*W.v+rb*W.r+ts*W.t;
     const fs=Math.round(total*10*10)/10;
-    return {score:fs,level:this.getLevel(fs),label:this.getLabel(fs),
-      desc:this.genDesc(cs,os,as,vs,rb,isSunrise),
-      factors:{cloud:{score:cs,value:data.hourly?.cloud_cover},offset:{score:os,value:data.offsetCloud?.cloud_cover,hasData:data.offsetCloud!==null},
-        aqi:{score:as,value:data.aqi?.european_aqi},visibility:{score:vs,value:data.hourly?.visibility},rain:{score:rb,value:null},timeFit:{score:ts,value:null}}};
+    return{score:fs,level:this.getLevel(fs),label:this.getLabel(fs),
+      desc:this.genDesc(cl,os,aod,hs,vs,rb,aq,isSunrise),
+      factors:{cloud:{score:cl,value:data.hourly?.cloud_cover},offset:{score:os,value:data.offsetCloud?.cloud_cover,hasData:data.offsetCloud!==null},
+        aod:{score:aod,value:data.aod},humidity:{score:hs,value:data.humidity},
+        aqi:{score:aq,value:data.aqi?.european_aqi},visibility:{score:vs,value:data.hourly?.visibility},rain:{score:rb,value:null},timeFit:{score:ts,value:null}}};
   },
-  getLevel(s) { return s>=9?'excellent':s>=7?'good':s>=5?'fair':s>=3?'poor':'bad'; },
-  getLabel(s) { return s>=9?'绝佳':s>=7?'很好':s>=5?'一般':s>=3?'较差':'很差'; },
-  genDesc(c,o,a,v,r,isSunrise) {
-    const p=[];
-    if(c>=0.8) p.push('云量适中'); else if(c<0.3) p.push('云量偏少'); else if(c>=0.5) p.push('云量尚可');
-    if(o>=0.8) p.push('太阳方向通透'); else if(o<0.4) p.push('太阳方向有遮挡');
-    if(v>=0.8) p.push('能见度好'); else if(v<0.4) p.push('能见度差');
-    if(r>=0.8) p.push('雨后初晴');
-    if(a>=0.8) p.push('色彩可能浓郁'); else if(a<0.3) p.push('空气质量较差');
+  getLevel(s){return s>=9?'excellent':s>=7?'good':s>=5?'fair':s>=3?'poor':'bad';},
+  getLabel(s){return s>=9?'绝佳':s>=7?'很好':s>=5?'一般':s>=3?'较差':'很差';},
+  genDesc(cl,os,aod,hs,vs,rb,aq,isSunrise){
+    const p=[]; if(cl>=0.7) p.push('高云丰富'); else if(cl<0.3) p.push('缺高云');
+    if(os>=0.8) p.push('太阳方向通透'); else if(os<0.4) p.push('太阳方向有遮挡');
+    if(aod>=0.7) p.push('气溶胶适中色彩浓郁'); else if(aod<0.3) p.push('大气过净');
+    if(hs>=0.7) p.push('湿度适宜'); else if(hs<0.3) p.push('过于干燥');
+    if(vs>=0.7) p.push('能见度好'); else if(vs<0.4) p.push('能见度差');
+    if(rb>=0.7) p.push('雨后初晴'); if(aq>=0.7) p.push('色彩通透'); else if(aq<0.3) p.push('污染较重');
     if(p.length===0) return isSunrise?'朝霞条件一般':'晚霞条件一般';
-    const fd=p.join(' · '), lv=(c+o+v)/3;
-    if(lv>=0.7) return fd+'，推荐拍摄。'; if(lv>=0.4) return fd+'，可尝试。';
-    return fd+'，不建议专门前往。';
+    const fd=p.join(' · '), lv=(cl+os+aod)/3;
+    if(lv>=0.7) return fd+'，推荐拍摄。'; if(lv>=0.4) return fd+'，可尝试。'; return fd+'，不建议专门前往。';
   }
 };
 
@@ -627,11 +637,13 @@ const UIModule = {
   _buildFactors(title,factors) {
     if(!factors) return '';
     let h=`<div class="fp-hdr">${title}</div>`;
-    const lbls={cloud:'云量',offset:'太阳方向',aqi:'AQI',visibility:'能见度',rain:'降水',timeFit:'时间'};
+    const lbls={cloud:'云量',offset:'太阳方向',aod:'气溶胶(AOD)',humidity:'湿度',aqi:'AQI',visibility:'能见度',rain:'降水',timeFit:'时间'};
     for(const[k,f]of Object.entries(factors)){
       const pct=Math.round((f.score||0)*100);
-      let vt=''; if(f.value!==null&&f.value!==undefined){vt=k==='visibility'?(f.value/1000).toFixed(0)+'km':k==='aqi'?f.value+'':(k==='cloud'||k==='offset')?f.value+'%':'';}
-      if(k==='offset'&&!f.hasData) vt='暂无';
+      let vt=''; if(f.value!==null&&f.value!==undefined){
+        vt=k==='aod'?f.value.toFixed(2):k==='visibility'?(f.value/1000).toFixed(0)+'km':k==='aqi'?f.value+'':k==='humidity'?f.value+'%':(k==='cloud'||k==='offset')?f.value+'%':'';
+      }
+      if(k==='offset'&&!f.hasData) vt='暂无'; if(k==='aod'&&!f.value) vt='暂无';
       h+=`<div class="fp-row"><span class="fp-lbl">${lbls[k]||k}</span><div class="fp-bar-wrap"><div class="fp-bar-fill" style="width:${pct}%"></div></div><span class="fp-val">${vt}</span></div>`;
     }
     return h;
