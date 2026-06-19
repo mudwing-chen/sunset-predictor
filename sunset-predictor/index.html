@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#f5f5f7">
   <meta name="description" content="风光摄影师专用朝霞晚霞质量预测工具">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,772 +15,590 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
   <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-      background: #000;
-      color: #f5f5f7;
-      min-height: 100vh;
+    :root {
+      --bg: #f5f5f7;
+      --bg-elevated: rgba(255,255,255,0.85);
+      --bg-card: rgba(255,255,255,0.7);
+      --text: #1d1d1f;
+      --text-secondary: rgba(0,0,0,0.45);
+      --text-tertiary: rgba(0,0,0,0.25);
+      --text-quaternary: rgba(0,0,0,0.15);
+      --border: rgba(0,0,0,0.06);
+      --border-light: rgba(0,0,0,0.04);
+      --accent: #f59e0b;
+      --accent-bg: rgba(245,158,11,0.1);
+      --accent-border: rgba(245,158,11,0.14);
+      --accent-gradient: linear-gradient(135deg, #f59e0b, #ef4444);
+      --bar-warm: linear-gradient(90deg, #f59e0b, #f97316);
+      --bar-cool: linear-gradient(90deg, rgba(0,0,0,0.12), rgba(0,0,0,0.2));
+      --bar-fill: linear-gradient(90deg, rgba(245,158,11,0.5), rgba(245,158,11,0.85));
+      --shadow: rgba(0,0,0,0.04);
+      --glow: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,0,0,0.03) 0%, transparent 60%);
+      --skeleton: rgba(0,0,0,0.02);
+      --err-bg: rgba(239,68,68,0.08);
+      --err-border: rgba(239,68,68,0.15);
+      --err-text: rgba(248,113,113,0.8);
+      --scrollbar: rgba(0,0,0,0.08);
+      --tl-lo: rgba(0,0,0,0.12);
+      --leaflet-bg: #e8e8e8;
     }
-    .bg-gradient {
-      position: fixed; inset: 0; z-index: -1;
-      background: radial-gradient(ellipse 80% 60% at 50% -10%, #1a1410 0%, #0a0a0f 50%, #000 100%);
+    .dark {
+      --bg: #000;
+      --bg-elevated: rgba(40,40,44,0.85);
+      --bg-card: rgba(255,255,255,0.04);
+      --text: #f5f5f7;
+      --text-secondary: rgba(245,245,247,0.45);
+      --text-tertiary: rgba(245,245,247,0.25);
+      --text-quaternary: rgba(245,245,247,0.12);
+      --border: rgba(255,255,255,0.08);
+      --border-light: rgba(255,255,255,0.04);
+      --accent: #f59e0b;
+      --accent-bg: rgba(245,158,11,0.12);
+      --accent-border: rgba(245,158,11,0.16);
+      --accent-gradient: linear-gradient(135deg, #f59e0b, #ef4444);
+      --bar-warm: linear-gradient(90deg, #f59e0b, #f97316);
+      --bar-cool: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.25));
+      --bar-fill: linear-gradient(90deg, rgba(245,158,11,0.5), rgba(245,158,11,0.85));
+      --shadow: rgba(0,0,0,0.3);
+      --glow: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(180,100,40,0.08) 0%, transparent 70%);
+      --skeleton: rgba(255,255,255,0.02);
+      --err-bg: rgba(239,68,68,0.08);
+      --err-border: rgba(239,68,68,0.15);
+      --err-text: rgba(248,113,113,0.8);
+      --scrollbar: rgba(255,255,255,0.08);
+      --tl-lo: rgba(255,255,255,0.12);
+      --leaflet-bg: #1a1a1a;
     }
-    .page { max-width: 880px; margin: 0 auto; padding: 28px 20px 60px; }
-    @media (max-width: 640px) { .page { padding: 20px 14px 48px; } }
-
-    /* — Typography — */
-    .t-label { font-size:11px; font-weight:600; color:rgba(255,255,255,0.28); text-transform:uppercase; letter-spacing:1.8px; }
-    .t-body { font-size:13px; line-height:1.55; color:rgba(255,255,255,0.55); font-weight:400; }
-    .t-score { font-size:54px; font-weight:700; letter-spacing:-2.5px; line-height:1; }
-    .t-score-sm { font-size:34px; font-weight:700; letter-spacing:-1.5px; line-height:1; }
-    .t-headline { font-size:15px; font-weight:600; letter-spacing:-0.2px; color:rgba(255,255,255,0.92); }
-
-    /* — Glass surfaces — */
-    .surface {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 22px;
-      backdrop-filter: blur(40px) saturate(1.4);
-      -webkit-backdrop-filter: blur(40px) saturate(1.4);
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    body{
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC','Microsoft YaHei',sans-serif;
+      background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s,color 0.3s
     }
-    .surface-raised {
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 22px;
-      backdrop-filter: blur(40px) saturate(1.5);
-      -webkit-backdrop-filter: blur(40px) saturate(1.5);
+    .bg-glow{position:fixed;inset:0;z-index:-1;background:var(--glow);transition:background 0.3s}
+    .page{max-width:860px;margin:0 auto;padding:24px 18px 48px}
+    @media(max-width:640px){.page{padding:18px 14px 40px}}
+    .label-xs{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:2px}
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    @media(max-width:640px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}}
+    .gap{margin-bottom:18px}.gap-sm{margin-bottom:12px}
+    .hr{display:flex;align-items:center;gap:14px;margin:22px 0 14px}
+    .hr::after{content:'';flex:1;height:1px;background:var(--border-light)}
+
+    .hdr{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 16px;border-radius:18px;margin-bottom:24px;
+      background:var(--bg-elevated);border:1px solid var(--border);
+      backdrop-filter:blur(32px) saturate(1.2);-webkit-backdrop-filter:blur(32px) saturate(1.2);
+      transition:background 0.3s,border 0.3s
     }
-    .surface-accent {
-      background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.03));
-      border: 1px solid rgba(245,158,11,0.16);
+    .hdr-l{display:flex;align-items:center;gap:10px;min-width:0}
+    .hdr-i{
+      width:32px;height:32px;border-radius:9px;flex-shrink:0;color:#fff;
+      display:flex;align-items:center;justify-content:center;font-size:17px;
+      background:var(--accent-gradient)
     }
-
-    /* — Layout grids — */
-    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-    @media (max-width:640px) { .grid-2,.grid-3 { grid-template-columns:1fr; } .grid-4 { grid-template-columns:1fr 1fr; } }
-
-    .spacer-sm { margin-bottom:14px; }
-    .spacer { margin-bottom:20px; }
-    .divider {
-      display:flex; align-items:center; gap:14px; margin:24px 0 16px;
+    .hdr-btn{
+      width:34px;height:34px;border-radius:10px;border:none;cursor:pointer;
+      background:var(--border);color:var(--text-secondary);
+      font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;
+      font-family:inherit
     }
-    .divider::after {
-      content:''; flex:1; height:1px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent);
+    .hdr-btn:hover{background:var(--text-quaternary);color:var(--text)}
+    .hdr-btn-loc{background:var(--accent-bg);color:var(--accent)}
+    .hdr-btns{display:flex;gap:6px;flex-shrink:0}
+    .theme-btn{font-size:13px;font-weight:500;padding:0 12px;cursor:pointer;transition:all 0.18s;border:none;font-family:inherit;
+      background:var(--border);color:var(--text-secondary);border-radius:10px;height:34px;display:flex;align-items:center;gap:4px}
+    .theme-btn:hover{background:var(--text-quaternary);color:var(--text)}
+
+    .search-p{display:none;margin-top:10px}
+    .search-i{
+      width:100%;background:var(--bg-card);color:var(--text);
+      border:1px solid var(--border);border-radius:14px;
+      padding:12px 16px 12px 40px;font-size:14px;outline:none;font-family:inherit;
+      backdrop-filter:blur(20px);transition:background 0.3s,color 0.3s,border 0.3s
     }
-
-    /* — Header — */
-    .header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:10px 18px; border-radius:20px;
-      background: rgba(255,255,255,0.04);
-      border:1px solid rgba(255,255,255,0.06);
-      backdrop-filter: blur(40px) saturate(1.4);
-      -webkit-backdrop-filter: blur(40px) saturate(1.4);
-      margin-bottom: 22px;
+    .search-i:focus{border-color:var(--accent)}
+    .search-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:0.3;font-size:15px}
+    .search-r{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+    .search-r button{
+      display:block;width:100%;text-align:left;padding:10px 14px;border-radius:12px;
+      font-size:13px;color:var(--text-secondary);cursor:pointer;font-family:inherit;
+      background:var(--bg-card);border:1px solid var(--border-light);transition:all 0.15s
     }
-    .header-left { display:flex; align-items:center; gap:10px; min-width:0; }
-    .header-icon {
-      width:34px; height:34px; border-radius:10px;
-      background: linear-gradient(135deg, #f59e0b, #ef4444);
-      display:flex; align-items:center; justify-content:center;
-      font-size:18px; flex-shrink:0;
+    .search-r button:hover{background:var(--border);color:var(--text)}
+    .err{display:none;background:var(--err-bg);border:1px solid var(--err-border);border-radius:14px;padding:12px 16px;font-size:13px;color:var(--err-text);margin-bottom:18px}
+
+    .h-card{
+      padding:20px;border-radius:20px;cursor:pointer;position:relative;overflow:hidden;
+      background:var(--bg-card);border:1px solid var(--border);
+      backdrop-filter:blur(32px) saturate(1.2);-webkit-backdrop-filter:blur(32px) saturate(1.2);
+      transition:all 0.25s,background 0.3s,border 0.3s
     }
-    .header-loc { min-width:0; }
-    .header-btns { display:flex; gap:6px; flex-shrink:0; }
-    .btn-icon {
-      width:34px; height:34px; border-radius:10px; border:none; cursor:pointer;
-      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5);
-      font-size:16px; display:flex; align-items:center; justify-content:center;
-      transition: all 0.18s;
-    }
-    .btn-icon:hover { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); }
-    .btn-icon-active { background: rgba(245,158,11,0.12); color: #f59e0b; }
+    .h-card::after{content:'';position:absolute;inset:0;border-radius:20px;pointer-events:none;background:linear-gradient(135deg,var(--border-light) 0%,transparent 60%)}
+    .h-card:hover{background:var(--border);border-color:var(--text-quaternary)}
+    .h-card-best{background:var(--accent-bg);border-color:var(--accent-border)}
+    .h-card-best::after{opacity:0.5}
+    .h-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .h-tag{font-size:14px;font-weight:600;color:var(--text);letter-spacing:-0.2px}
+    .h-time{font-size:11px;color:var(--text-tertiary);background:var(--border-light);padding:4px 10px;border-radius:20px;font-weight:500}
+    .h-score{display:flex;align-items:baseline;gap:6px}
+    .h-num{font-size:52px;font-weight:700;letter-spacing:-2.5px;line-height:1}
+    @media(max-width:640px){.h-num{font-size:40px}}
+    .h-lvl{font-size:14px;font-weight:500}
+    .h-bar{height:3px;border-radius:3px;background:var(--border-light);margin-top:14px;overflow:hidden}
+    .h-fill{height:100%;border-radius:3px;transition:width 0.7s ease}
+    .h-fill-w{background:var(--bar-warm)}
+    .h-fill-c{background:var(--bar-cool)}
+    .h-desc{font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:10px}
 
-    /* — Search — */
-    .search-wrap { margin-top:10px; display:none; }
-    .search-input {
-      width:100%; background:rgba(255,255,255,0.06); color:#fff;
-      border:1px solid rgba(255,255,255,0.10); border-radius:14px;
-      padding:12px 16px 12px 40px; font-size:14px; outline:none;
-      backdrop-filter:blur(20px); position:relative;
-    }
-    .search-input:focus { border-color: rgba(245,158,11,0.4); }
-    .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); opacity:0.35; font-size:15px; }
-    .search-results { margin-top:8px; display:flex; flex-direction:column; gap:4px; }
-    .search-item {
-      display:block; width:100%; text-align:left; padding:10px 14px; border-radius:12px;
-      font-size:13px; color:rgba(255,255,255,0.65); cursor:pointer;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05);
-      transition: all 0.15s; font-family: inherit;
-    }
-    .search-item:hover { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.9); }
+    .wb{padding:14px 8px;text-align:center;border-radius:16px;background:var(--bg-card);border:1px solid var(--border-light)}
+    .wb-v{font-size:17px;font-weight:700;color:var(--text)}
+    .wb-l{font-size:9px;color:var(--text-tertiary);margin-top:4px;text-transform:uppercase;letter-spacing:0.8px}
 
-    /* — Error banner — */
-    .error-banner {
-      display:none; background:rgba(239,68,68,0.10); border:1px solid rgba(239,68,68,0.18);
-      border-radius:16px; padding:14px 18px; font-size:13px; color:rgba(248,113,113,0.85);
-      margin-bottom:18px;
-    }
+    .info{padding:16px;border-radius:18px;background:var(--bg-card);border:1px solid var(--border-light)}
+    .info-l{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+    .info-cd{font-size:28px;font-weight:700;letter-spacing:-1px;color:var(--accent)}
+    .info-cd-u{font-size:13px;font-weight:500;color:var(--text-tertiary);margin-left:2px}
+    .info-sub{font-size:11px;color:var(--text-secondary);margin-top:4px}
+    .info-dir{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.5px}
+    .info-da{font-size:12px;color:var(--text-secondary);margin-top:2px}
+    @media(max-width:640px){.info-cd{font-size:24px}}
 
-    /* — Hero cards — */
-    .hero-card {
-      padding:22px; border-radius:22px; cursor:pointer;
-      background: rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);
-      backdrop-filter:blur(40px) saturate(1.4);
-      -webkit-backdrop-filter:blur(40px) saturate(1.4);
-      transition: all 0.25s; position:relative; overflow:hidden;
-    }
-    .hero-card::after {
-      content:''; position:absolute; inset:0; border-radius:22px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
-      pointer-events:none;
-    }
-    .hero-card:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.14); }
-    .hero-card-best {
-      background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.02));
-      border-color: rgba(245,158,11,0.16);
-    }
-    .hero-card-best::after { background: linear-gradient(135deg, rgba(245,158,11,0.06) 0%, transparent 60%); }
-    .hc-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-    .hc-tag { font-size:14px; font-weight:600; color:rgba(255,255,255,0.88); letter-spacing:-0.2px; }
-    .hc-time { font-size:11px; color:rgba(255,255,255,0.28); background:rgba(255,255,255,0.04); padding:4px 10px; border-radius:20px; font-weight:500; }
-    .hc-score-row { display:flex; align-items:baseline; gap:6px; }
-    .hc-num { font-size:54px; font-weight:700; letter-spacing:-2.5px; line-height:1; }
-    @media(max-width:640px) { .hc-num { font-size:42px; } }
-    .hc-lvl { font-size:14px; font-weight:500; }
-    .hc-bar { height:4px; border-radius:4px; background:rgba(255,255,255,0.06); margin-top:14px; overflow:hidden; }
-    .hc-fill { height:100%; border-radius:4px; transition:width 0.7s ease; }
-    .hc-fill-warm { background: linear-gradient(90deg, #f59e0b, #f97316); }
-    .hc-fill-cool { background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.35)); }
-    .hc-desc { font-size:12px; color:rgba(255,255,255,0.45); line-height:1.5; margin-top:10px; }
+    .tl{padding:18px;border-radius:20px;margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border-light)}
+    .tl-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .tl-chart{display:flex;gap:4px;align-items:flex-end;height:60px;overflow-x:auto;padding-bottom:4px}
+    .tl-c{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px}
+    .tl-b{display:flex;gap:2px;align-items:flex-end;height:40px}
+    .tl-b>div{width:5px;border-radius:3px 3px 0 0}
+    .tl-hi{background:var(--accent);opacity:0.6}
+    .tl-md{background:#f97316;opacity:0.5}
+    .tl-lo{background:var(--tl-lo);opacity:0.35}
+    .tl-hr{font-size:8px;color:var(--text-quaternary)}
+    .tl-ld{display:flex;gap:14px;margin-top:8px}
+    .tl-ld>div{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text-quaternary)}
 
-    /* — Weather bar — */
-    .wb-item { padding:16px 10px; text-align:center; border-radius:18px;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05);
-      backdrop-filter:blur(20px); }
-    .wb-val { font-size:18px; font-weight:700; color:rgba(255,255,255,0.82); }
-    .wb-lbl { font-size:10px; color:rgba(255,255,255,0.28); margin-top:4px; text-transform:uppercase; letter-spacing:0.6px; }
+    .fp{padding:18px;border-radius:20px;margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border-light)}
+    .fp-h{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+    .fp-r{display:flex;align-items:center;gap:12px;margin-bottom:7px}
+    .fp-l{font-size:12px;font-weight:500;color:var(--text-secondary);width:80px;flex-shrink:0}
+    .fp-b{flex:1;height:4px;border-radius:4px;background:var(--border-light);overflow:hidden}
+    .fp-f{height:100%;border-radius:4px;background:var(--bar-fill);transition:width 0.7s}
+    .fp-v{font-size:11px;font-weight:500;color:var(--text-tertiary);width:44px;text-align:right}
 
-    /* — Info bar (countdown + direction) — */
-    .info-item { padding:18px; border-radius:18px;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
-      backdrop-filter:blur(20px); }
-    .info-label { font-size:10px; font-weight:600; color:rgba(255,255,255,0.25); text-transform:uppercase; letter-spacing:1.2px; margin-bottom:8px; }
-    .info-cd { font-size:30px; font-weight:700; letter-spacing:-1px; color:#f59e0b; }
-    .info-cd-unit { font-size:14px; font-weight:500; color:rgba(255,255,255,0.32); margin-left:2px; }
-    .info-sub { font-size:11px; color:rgba(255,255,255,0.38); margin-top:4px; }
-    .info-dir { font-size:21px; font-weight:700; color:rgba(255,255,255,0.82); letter-spacing:-0.5px; }
-    .info-dir-alt { font-size:12px; color:rgba(255,255,255,0.35); margin-top:2px; }
+    .m-card{padding:16px;border-radius:18px;cursor:pointer;background:var(--bg-card);border:1px solid var(--border-light);transition:all 0.2s}
+    .m-card:hover{background:var(--border);border-color:var(--text-quaternary)}
+    .m-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .m-tag{font-size:12px;font-weight:500;color:var(--text-secondary)}
+    .m-time{font-size:10px;color:var(--text-quaternary);background:var(--border-light);padding:2px 8px;border-radius:12px}
+    .m-score{font-size:26px;font-weight:700;letter-spacing:-1px}
+    .m-bar{height:3px;border-radius:3px;background:var(--border-light);margin-top:8px;overflow:hidden}
+    .m-fill{height:100%;border-radius:3px}
 
-    /* — Cloud timeline — */
-    .tl-wrap { padding:20px; border-radius:22px;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
-      backdrop-filter:blur(20px); margin-bottom:16px; }
-    .tl-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-    .tl-hdr-l { font-size:11px; font-weight:600; color:rgba(255,255,255,0.30); text-transform:uppercase; letter-spacing:1.5px; }
-    .tl-hdr-r { font-size:11px; color:#f59e0b; font-weight:500; }
-    .tl-chart { display:flex; gap:4px; align-items:flex-end; height:64px; overflow-x:auto; padding-bottom:4px; }
-    .tl-col { display:flex; flex-direction:column; align-items:center; gap:3px; min-width:28px; }
-    .tl-bars { display:flex; gap:2px; align-items:flex-end; height:44px; }
-    .tl-bar { width:6px; border-radius:3px 3px 0 0; }
-    .tl-hi { background:#f59e0b; opacity:0.65; }
-    .tl-md { background:#f97316; opacity:0.55; }
-    .tl-lo { background:rgba(255,255,255,0.20); opacity:0.35; }
-    .tl-hr { font-size:9px; color:rgba(255,255,255,0.22); }
-    .tl-lgd { display:flex; gap:16px; margin-top:10px; }
-    .tl-lgd-i { display:flex; align-items:center; gap:5px; font-size:10px; color:rgba(255,255,255,0.28); }
-    .tl-lgd-d { width:8px; height:8px; border-radius:2px; }
+    .tr{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+    .tr-d{min-width:54px;text-align:center;padding:10px 4px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-light)}
+    .tr-dw{font-size:9px;color:var(--text-quaternary);margin-bottom:4px}
+    .tr-ic{font-size:14px;margin-bottom:4px}
+    .tr-sc{font-size:14px;font-weight:700}
+    .tr-lb{font-size:8px;color:var(--text-quaternary);margin-top:2px}
 
-    /* — Factor panel — */
-    .fp-wrap { padding:20px; border-radius:22px;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
-      backdrop-filter:blur(20px); margin-bottom:16px; }
-    .fp-hdr { font-size:11px; font-weight:600; color:rgba(255,255,255,0.22); text-transform:uppercase; letter-spacing:2px; margin-bottom:14px; }
-    .fp-row { display:flex; align-items:center; gap:14px; margin-bottom:8px; }
-    .fp-lbl { font-size:12px; font-weight:500; color:rgba(255,255,255,0.42); width:84px; flex-shrink:0; }
-    .fp-bar-wrap { flex:1; height:5px; border-radius:5px; background:rgba(255,255,255,0.05); overflow:hidden; }
-    .fp-bar-fill { height:100%; border-radius:5px; background: linear-gradient(90deg, rgba(245,158,11,0.5), rgba(245,158,11,0.85)); transition:width 0.7s; }
-    .fp-val { font-size:11px; font-weight:500; color:rgba(255,255,255,0.30); width:44px; text-align:right; }
+    .mw{padding:18px;border-radius:20px;margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border-light)}
+    .mw-h{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+    .mw-it{padding:12px 8px;text-align:center;border-radius:14px;background:var(--bg-card);border:1px solid var(--border-light)}
+    .mw-v{font-size:14px;font-weight:600;color:var(--text)}
+    .mw-l{font-size:9px;color:var(--text-tertiary);margin-top:4px;text-transform:uppercase;letter-spacing:0.8px}
+    .mw-b{display:inline-block;font-size:11px;font-weight:500;padding:3px 12px;border-radius:20px;margin-top:8px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+    .mw-n{font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:8px}
 
-    /* — Mini cards — */
-    .mini-card { padding:16px; border-radius:18px; cursor:pointer;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
-      backdrop-filter:blur(20px); transition:all 0.2s; }
-    .mini-card:hover { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); }
-    .mc-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-    .mc-tag { font-size:12px; font-weight:500; color:rgba(255,255,255,0.65); }
-    .mc-time { font-size:10px; color:rgba(255,255,255,0.28); background:rgba(255,255,255,0.04); padding:2px 8px; border-radius:12px; }
-    .mc-score { font-size:28px; font-weight:700; letter-spacing:-1px; }
-    .mc-bar { height:3px; border-radius:3px; background:rgba(255,255,255,0.05); margin-top:8px; overflow:hidden; }
-    .mc-fill { height:100%; border-radius:3px; }
+    .map-p{display:none;margin-top:14px;border-radius:20px;overflow:hidden;border:1px solid var(--border);height:360px}
+    .map-i{width:100%;height:100%}
+    .ft{margin-top:40px;text-align:center;font-size:11px;color:var(--text-quaternary)}
+    .ft a{color:var(--text-tertiary);text-decoration:underline}
 
-    /* — Trend — */
-    .trend { display:flex; gap:8px; margin-bottom:16px; overflow-x:auto; }
-    .trend-day { min-width:56px; text-align:center; padding:12px 6px; border-radius:14px;
-      background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); }
-    .trend-dow { font-size:10px; color:rgba(255,255,255,0.22); margin-bottom:4px; }
-    .trend-icon { font-size:15px; margin-bottom:4px; }
-    .trend-score { font-size:15px; font-weight:700; }
-    .trend-lbl { font-size:9px; color:rgba(255,255,255,0.18); margin-top:2px; }
+    .skeleton{border-radius:20px;padding:20px;background:var(--skeleton);border:1px solid var(--border-light);animation:pulse 2s cubic-bezier(0.4,0,0.6,1) infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* — Milky Way — */
-    .mw-wrap { padding:20px; border-radius:22px;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
-      backdrop-filter:blur(20px); margin-bottom:16px; }
-    .mw-hdr { font-size:11px; font-weight:600; color:rgba(255,255,255,0.22); text-transform:uppercase; letter-spacing:2px; margin-bottom:14px; }
-    .mw-item { text-align:center; padding:14px 8px; border-radius:16px;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04); }
-    .mw-val { font-size:15px; font-weight:600; color:rgba(255,255,255,0.78); }
-    .mw-lbl { font-size:10px; color:rgba(255,255,255,0.28); margin-top:4px; text-transform:uppercase; letter-spacing:0.6px; }
-    .mw-rating { display:inline-block; font-size:12px; font-weight:500; padding:4px 14px; border-radius:20px;
-      background:rgba(245,158,11,0.10); color:#f59e0b; border:1px solid rgba(245,158,11,0.14);
-      margin-top:10px; }
-    .mw-note { font-size:11px; color:rgba(255,255,255,0.28); text-align:center; margin-top:8px; }
-
-    /* — Map — */
-    .map-wrap { display:none; margin-top:16px; border-radius:22px; overflow:hidden; border:1px solid rgba(255,255,255,0.07); height:380px; }
-    .map-inner { width:100%; height:100%; }
-
-    /* — Footer — */
-    .footer { margin-top:44px; text-align:center; font-size:12px; color:rgba(255,255,255,0.15); }
-    .footer a { color:rgba(255,255,255,0.28); text-decoration:underline; }
-
-    /* — Skeleton — */
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-    .skeleton { border-radius:22px; padding:22px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); animation:pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
-
-    /* — Leaflet overrides — */
-    .leaflet-container { background:#1e1e1e; }
-    .leaflet-control-zoom a { background:rgba(51,51,51,0.9) !important; color:#e2e2e2 !important; border-color:rgba(71,71,71,0.5) !important; }
-    .leaflet-control-attribution { background:rgba(0,0,0,0.85) !important; color:#888 !important; }
-    .leaflet-control-attribution a { color:#888 !important; }
-
-    /* — Scrollbar — */
-    ::-webkit-scrollbar { width:4px; height:4px; }
-    ::-webkit-scrollbar-track { background:transparent; }
-    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.10); border-radius:3px; }
-
-    @keyframes spin { to { transform:rotate(360deg); } }
+    .leaflet-container{background:var(--leaflet-bg)}
+    .leaflet-control-zoom a{background:var(--bg-elevated)!important;color:var(--text)!important;border-color:var(--border)!important}
+    .leaflet-control-attribution{background:var(--bg-elevated)!important;color:var(--text-tertiary)!important}
+    .leaflet-control-attribution a{color:var(--text-secondary)!important}
+    ::-webkit-scrollbar{width:3px;height:3px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:3px}
   </style>
 </head>
 <body>
-  <div class="bg-gradient"></div>
-  <div id="app" class="page">
-    <!-- Header -->
-    <div class="header">
-      <div class="header-left">
-        <div class="header-icon">🌅</div>
-        <div class="header-loc">
+  <div class="bg-glow"></div>
+  <div class="page">
+    <div class="hdr">
+      <div class="hdr-l">
+        <div class="hdr-i">🌅</div>
+        <div>
           <div style="display:flex;align-items:center;gap:6px">
-            <span id="locationName" class="t-headline" style="font-size:14px">定位中…</span>
-            <span id="loadingSpinner" style="display:none;width:14px;height:14px;border:2px solid rgba(245,158,11,0.3);border-top-color:#f59e0b;border-radius:50%;animation:spin 0.6s linear infinite;flex-shrink:0"></span>
+            <span id="locationName" style="font-size:14px;font-weight:600;color:var(--text)">定位中…</span>
+            <span id="loadingSpinner" style="display:none;width:13px;height:13px;border:2px solid var(--accent-bg);border-top-color:var(--accent);border-radius:50%;animation:spin 0.6s linear infinite;flex-shrink:0"></span>
           </div>
-          <p id="locationCoords" style="font-size:11px;color:rgba(255,255,255,0.28);margin-top:2px"></p>
+          <p id="locationCoords" style="font-size:11px;color:var(--text-tertiary);margin-top:1px"></p>
         </div>
       </div>
-      <div class="header-btns">
-        <button id="searchToggle" class="btn-icon" title="搜索">🔍</button>
-        <button id="mapToggle" class="btn-icon" title="地图">🗺️</button>
-        <button id="locateBtn" class="btn-icon btn-icon-active" title="重新定位">📍</button>
+      <div class="hdr-btns">
+        <button id="themeToggle" class="theme-btn" title="切换主题">☀️ <span id="themeLabel">浅色</span></button>
+        <button id="searchToggle" class="hdr-btn" title="搜索">🔍</button>
+        <button id="mapToggle" class="hdr-btn" title="地图">🗺️</button>
+        <button id="locateBtn" class="hdr-btn hdr-btn-loc" title="重新定位">📍</button>
       </div>
     </div>
 
-    <!-- Search -->
-    <div id="searchPanel" class="search-wrap">
+    <div class="search-p" id="searchPanel">
       <div style="position:relative">
-        <input type="text" id="searchInput" class="search-input" placeholder="城市名，如 杭州、上海、黄山…">
-        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-i" placeholder="城市名，如 杭州、上海、黄山…">
+        <span class="search-ico">🔍</span>
       </div>
-      <div id="searchResults" class="search-results"></div>
+      <div id="searchResults" class="search-r"></div>
     </div>
 
     <main>
-      <div id="errorBanner" class="error-banner">
+      <div class="err" id="errorBanner">
         <span id="errorMessage"></span>
         <button id="retryBtn" style="margin-left:8px;text-decoration:underline;background:none;border:none;color:inherit;cursor:pointer;font-family:inherit">重试</button>
       </div>
-      <!-- dynamic content injected here -->
-      <div id="mapPanel" class="map-wrap"><div id="map" class="map-inner"></div></div>
+      <div class="map-p" id="mapPanel"><div class="map-i" id="map"></div></div>
     </main>
 
-    <div class="footer">
-      <p>数据来源 · <a href="https://open-meteo.com" target="_blank">Open‑Meteo</a> · <a href="https://github.com/mourner/suncalc" target="_blank">SunCalc</a></p>
-    </div>
+    <div class="ft">数据 · <a href="https://open-meteo.com" target="_blank">Open‑Meteo</a> · <a href="https://github.com/mourner/suncalc" target="_blank">SunCalc</a></div>
   </div>
 
   <script defer src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
   <script defer>
+// ====== Theme ======
+const Theme={
+  init(){
+    const saved=localStorage.getItem('theme');
+    if(saved==='dark'){document.body.classList.add('dark');this._updateBtn(true)}
+    else if(saved==='light'){document.body.classList.remove('dark');this._updateBtn(false)}
+    else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.body.classList.add('dark');this._updateBtn(true)}
+    else{this._updateBtn(false)}
+  },
+  toggle(){
+    const isDark=document.body.classList.toggle('dark');
+    localStorage.setItem('theme',isDark?'dark':'light');
+    this._updateBtn(isDark)
+  },
+  _updateBtn(isDark){
+    const btn=document.getElementById('themeLabel');
+    if(btn)btn.textContent=isDark?'深色':'浅色'
+  }
+};
+
 // ====== Helpers ======
-const $ = (id) => document.getElementById(id);
-const show = (el) => { if (typeof el === 'string') el = $(el); if (el) el.style.display = ''; };
-const hide = (el) => { if (typeof el === 'string') el = $(el); if (el) el.style.display = 'none'; };
-const isHidden = (el) => { if (typeof el === 'string') el = $(el); return !el || el.style.display === 'none'; };
-const toggle = (el) => { if (typeof el === 'string') el = $(el); if (!el) return; el.style.display = isHidden(el) ? '' : 'none'; };
-function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+const $=id=>document.getElementById(id);
+const show=el=>{if(typeof el==='string')el=$(el);if(el)el.style.display=''};
+const hide=el=>{if(typeof el==='string')el=$(el);if(el)el.style.display='none'};
+const hidden=el=>{if(typeof el==='string')el=$(el);return!el||el.style.display==='none'};
+const tog=el=>{if(typeof el==='string')el=$(el);if(el)el.style.display=hidden(el)?'':'none'};
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
 // ====== Location Module ======
-const LocationModule = {
-  state: { latitude:null, longitude:null, cityName:'定位中…', isLoading:false, error:null },
-  async getCurrentPosition() {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) return reject(new Error('浏览器不支持地理定位'));
-      navigator.geolocation.getCurrentPosition(
-        p => resolve({ lat:p.coords.latitude, lng:p.coords.longitude }),
-        e => { const m={1:'定位权限被拒绝',2:'无法获取位置',3:'定位超时'}; reject(new Error(m[e.code]||'定位失败')); },
-        { enableHighAccuracy:false, timeout:10000 }
-      );
-    });
+const LocationModule={
+  state:{latitude:null,longitude:null,cityName:'定位中…',isLoading:false,error:null},
+  async getCurrentPosition(){
+    return new Promise((rs,rj)=>{
+      if(!navigator.geolocation)return rj(new Error('浏览器不支持地理定位'));
+      navigator.geolocation.getCurrentPosition(p=>rs({lat:p.coords.latitude,lng:p.coords.longitude}),
+        e=>{const m={1:'定位权限被拒绝',2:'无法获取位置',3:'定位超时'};rj(new Error(m[e.code]||'定位失败'))},
+        {enableHighAccuracy:false,timeout:10000})
+    })
   },
-  async reverseGeocode(lat,lng) {
-    try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=zh&zoom=10`,{headers:{'User-Agent':'SunsetPredictor/2.0'}});
-      const d = await r.json();
-      return d.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-    } catch { return `${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E`; }
+  async reverseGeocode(lat,lng){
+    try{
+      const r=await fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json&accept-language=zh&zoom=10',{headers:{'User-Agent':'SunsetPredictor/2.0'}});
+      const d=await r.json();return d.display_name||lat.toFixed(4)+', '+lng.toFixed(4)
+    }catch{return lat.toFixed(4)+'°N, '+lng.toFixed(4)+'°E'}
   },
-  async searchCity(q) {
-    try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&accept-language=zh`,{headers:{'User-Agent':'SunsetPredictor/2.0'}});
-      return await r.json();
-    } catch { throw new Error('搜索地点失败'); }
+  async searchCity(q){
+    try{
+      const r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=5&accept-language=zh',{headers:{'User-Agent':'SunsetPredictor/2.0'}});
+      return await r.json()
+    }catch{throw new Error('搜索地点失败')}
   },
-  async setLocation(lat,lng) {
-    if (lat<-90||lat>90||lng<-180||lng>180) throw new Error('无效的坐标');
-    this.state.latitude = lat; this.state.longitude = lng;
-    this.state.cityName = await this.reverseGeocode(lat,lng); this.state.error = null;
-    if (typeof App !== 'undefined' && App.updateLocation) App.updateLocation(this.state.cityName, lat, lng);
+  async setLocation(lat,lng){
+    if(lat<-90||lat>90||lng<-180||lng>180)throw new Error('无效的坐标');
+    this.state.latitude=lat;this.state.longitude=lng;
+    this.state.cityName=await this.reverseGeocode(lat,lng);this.state.error=null;
+    if(typeof App!=='undefined'&&App.updateLocation)App.updateLocation(this.state.cityName,lat,lng)
   },
-  async init() {
-    try { this.state.isLoading=true; const p=await this.getCurrentPosition(); await this.setLocation(p.lat,p.lng); }
-    catch(e) { this.state.error=e.message; this.state.cityName='杭州 (默认)'; await this.setLocation(30.2741,120.1551); }
-    finally { this.state.isLoading=false; }
+  async init(){
+    try{this.state.isLoading=true;const p=await this.getCurrentPosition();await this.setLocation(p.lat,p.lng)}
+    catch(e){this.state.error=e.message;this.state.cityName='杭州 (默认)';await this.setLocation(30.2741,120.1551)}
+    finally{this.state.isLoading=false}
   }
 };
 
 // ====== SunCalc Module ======
-const SunCalcModule = {
-  getSunTimes(lat,lng,date=new Date()) {
+const SunCalcModule={
+  getSunTimes(lat,lng,date=new Date()){
     const t=SunCalc.getTimes(date,lat,lng);
-    return { sunrise:t.sunrise, sunset:t.sunset, goldenHourEnd:t.goldenHourEnd, goldenHour:t.goldenHour,
-      dawn:t.dawn, dusk:t.dusk, nauticalDawn:t.nauticalDawn, nauticalDusk:t.nauticalDusk, solarNoon:t.solarNoon };
+    return{sunrise:t.sunrise,sunset:t.sunset,goldenHourEnd:t.goldenHourEnd,goldenHour:t.goldenHour,dawn:t.dawn,dusk:t.dusk,nauticalDawn:t.nauticalDawn,nauticalDusk:t.nauticalDusk,solarNoon:t.solarNoon}
   },
-  getSunAzimuth(lat,lng,time) { const p=SunCalc.getPosition(time,lat,lng); return { azimuth:p.azimuth, altitude:p.altitude }; },
-  getSunriseSunsetAzimuth(lat,lng,date=new Date()) {
+  getSunAzimuth(lat,lng,time){const p=SunCalc.getPosition(time,lat,lng);return{azimuth:p.azimuth,altitude:p.altitude}},
+  getSunriseSunsetAzimuth(lat,lng,date=new Date()){
+    const t=this.getSunTimes(lat,lng,date);const sa=this.getSunAzimuth(lat,lng,t.sunrise),ss=this.getSunAzimuth(lat,lng,t.sunset);
+    return{sunriseAzimuth:sa.azimuth,sunsetAzimuth:ss.azimuth,sunriseAltitude:sa.altitude,sunsetAltitude:ss.altitude}
+  },
+  formatTime(d){if(!d||isNaN(d.getTime()))return'--:--';return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')},
+  getPhotoTimes(lat,lng,date=new Date()){
     const t=this.getSunTimes(lat,lng,date);
-    const sa=this.getSunAzimuth(lat,lng,t.sunrise), ss=this.getSunAzimuth(lat,lng,t.sunset);
-    return { sunriseAzimuth:sa.azimuth, sunsetAzimuth:ss.azimuth, sunriseAltitude:sa.altitude, sunsetAltitude:ss.altitude };
+    return{morningGolden:{start:t.sunrise,end:t.goldenHourEnd},eveningGolden:{start:t.goldenHour,end:t.sunset},morningBlue:{start:t.dawn,end:t.sunrise},eveningBlue:{start:t.sunset,end:t.dusk}}
   },
-  formatTime(d) { if(!d||isNaN(d.getTime())) return '--:--'; return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; },
-  getPhotoTimes(lat,lng,date=new Date()) {
-    const t=this.getSunTimes(lat,lng,date);
-    return { morningGolden:{start:t.sunrise,end:t.goldenHourEnd}, eveningGolden:{start:t.goldenHour,end:t.sunset},
-      morningBlue:{start:t.dawn,end:t.sunrise}, eveningBlue:{start:t.sunset,end:t.dusk} };
-  },
-  hasValidTimes(lat,lng,date=new Date()) {
-    const t=this.getSunTimes(lat,lng,date);
-    return t.sunrise&&t.sunset&&!isNaN(t.sunrise.getTime())&&!isNaN(t.sunset.getTime());
-  },
-  azimuthToText(rad) {
-    const deg=((rad*180/Math.PI)+360)%360;
-    const d=['正北','东北偏北','东北','东北偏东','正东','东南偏东','东南','东南偏南','正南','西南偏南','西南','西南偏西','正西','西北偏西','西北','西北偏北'];
-    return d[Math.round(deg/22.5)%16];
-  },
-  getMilkyWayInfo(lat,lng,date=new Date()) {
-    const mi=SunCalc.getMoonIllumination(date);
-    const m=date.getMonth(), dy=date.getDate();
-    let ch=24-(((m+1)*30+dy)/365*24); if(ch<0) ch+=24; if(ch>=24) ch-=24;
-    const rh=(ch-6+24)%24, sh=(ch+6)%24, bs=(ch-2+24)%24, be=(ch+2)%24;
-    const moonFree=mi.fraction<0.3, moonGood=mi.fraction<0.5;
-    return { visible:true, riseHour:rh, setHour:sh, culmHour:ch, bestStart:bs, bestEnd:be,
-      moonPhase:mi.fraction,
-      moonPhaseText:mi.fraction<0.1?'新月 最佳':mi.fraction<0.3?'月光极低':mi.fraction<0.5?'月光适中':'月光过亮不推荐',
-      rating:moonFree?'⭐ 适合拍摄':moonGood?'可尝试':'🌙 月光影响大' };
+  hasValidTimes(lat,lng,date=new Date()){const t=this.getSunTimes(lat,lng,date);return t.sunrise&&t.sunset&&!isNaN(t.sunrise.getTime())&&!isNaN(t.sunset.getTime())},
+  azimuthToText(rad){const deg=((rad*180/Math.PI)+360)%360;const d=['正北','东北偏北','东北','东北偏东','正东','东南偏东','东南','东南偏南','正南','西南偏南','西南','西南偏西','正西','西北偏西','西北','西北偏北'];return d[Math.round(deg/22.5)%16]},
+  getMilkyWayInfo(lat,lng,date=new Date()){
+    const mi=SunCalc.getMoonIllumination(date);const m=date.getMonth(),dy=date.getDate();
+    let ch=24-(((m+1)*30+dy)/365*24);if(ch<0)ch+=24;if(ch>=24)ch-=24;
+    const rh=(ch-6+24)%24,sh=(ch+6)%24,bs=(ch-2+24)%24,be=(ch+2)%24;
+    return{visible:true,riseHour:rh,setHour:sh,culmHour:ch,bestStart:bs,bestEnd:be,moonPhase:mi.fraction,moonPhaseText:mi.fraction<0.1?'新月最佳':mi.fraction<0.3?'月光极低':mi.fraction<0.5?'月光适中':'月光过亮不推荐',rating:mi.fraction<0.3?'⭐ 适合拍摄':mi.fraction<0.5?'可尝试':'🌙 月光影响大'}
   }
 };
 
 // ====== Weather Module ======
-const WeatherModule = {
-  W:'https://api.open-meteo.com/v1/forecast', AQ:'https://air-quality-api.open-meteo.com/v1/air-quality',
-  async fetchWeather(lat,lng) {
-    const p=new URLSearchParams({latitude:lat,longitude:lng,timezone:'auto',forecast_days:7,
-      hourly:'temperature_2m,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,precipitation,wind_speed_10m,wind_direction_10m,cape',
-      daily:'temperature_2m_max,temperature_2m_min,precipitation_sum'});
-    const r=await fetch(`${this.W}?${p}`); if(!r.ok) throw new Error(`天气数据获取失败 (${r.status})`); return await r.json();
+const WeatherModule={
+  W:'https://api.open-meteo.com/v1/forecast',AQ:'https://air-quality-api.open-meteo.com/v1/air-quality',
+  async fetchWeather(lat,lng){
+    const p=new URLSearchParams({latitude:lat,longitude:lng,timezone:'auto',forecast_days:7,hourly:'temperature_2m,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,precipitation,wind_speed_10m,wind_direction_10m',daily:'temperature_2m_max,temperature_2m_min,precipitation_sum'});
+    const r=await fetch(this.W+'?'+p);if(!r.ok)throw new Error('天气数据获取失败 ('+r.status+')');return await r.json()
   },
-  async fetchAirQuality(lat,lng) {
+  async fetchAirQuality(lat,lng){
     const p=new URLSearchParams({latitude:lat,longitude:lng,hourly:'european_aqi,aerosol_optical_depth',timezone:'auto',forecast_days:7});
-    const r=await fetch(`${this.AQ}?${p}`); if(!r.ok) return null; return await r.json();
+    const r=await fetch(this.AQ+'?'+p);if(!r.ok)return null;return await r.json()
   },
-  getMoonPhase(d) { return SunCalc.getMoonIllumination(d); },
-  getMoonTimes(lat,lng,d) { return SunCalc.getMoonTimes(d,lat,lng); },
-  async fetchOffsetWeather(lat,lng) {
+  getMoonPhase(d){return SunCalc.getMoonIllumination(d)},
+  async fetchOffsetWeather(lat,lng){
     const p=new URLSearchParams({latitude:lat,longitude:lng,hourly:'cloud_cover',timezone:'auto',forecast_days:2});
-    try { const r=await fetch(`${this.W}?${p}`); if(!r.ok) return null; return await r.json(); } catch { return null; }
+    try{const r=await fetch(this.W+'?'+p);if(!r.ok)return null;return await r.json()}catch{return null}
   },
-  calculateOffset(lat,lng,azRad,dist) {
+  calculateOffset(lat,lng,az,dist){
     const R=6371,lr=lat*Math.PI/180,lnr=lng*Math.PI/180,ad=dist/R;
-    const nlr=Math.asin(Math.sin(lr)*Math.cos(ad)+Math.cos(lr)*Math.sin(ad)*Math.cos(azRad));
-    const nlnr=lnr+Math.atan2(Math.sin(azRad)*Math.sin(ad)*Math.cos(lr),Math.cos(ad)-Math.sin(lr)*Math.sin(nlr));
-    return { lat:nlr*180/Math.PI, lng:nlnr*180/Math.PI };
+    const nlr=Math.asin(Math.sin(lr)*Math.cos(ad)+Math.cos(lr)*Math.sin(ad)*Math.cos(az));
+    return{lat:nlr*180/Math.PI,lng:(lnr+Math.atan2(Math.sin(az)*Math.sin(ad)*Math.cos(lr),Math.cos(ad)-Math.sin(lr)*Math.sin(nlr)))*180/Math.PI}
   },
-  getHourlyData(data,targetTime) {
-    if(!data||!data.hourly||!data.hourly.time) return null;
-    const times=data.hourly.time, tms=targetTime.getTime(); let ci=0, cd=Infinity;
-    for(let i=0;i<times.length;i++){const d=Math.abs(new Date(times[i]).getTime()-tms); if(d<cd){cd=d;ci=i;}}
-    const r={index:ci,diffMinutes:cd/60000};
-    for(const k in data.hourly){if(k!=='time') r[k]=data.hourly[k][ci];}
-    return r;
+  getHourlyData(data,targetTime){
+    if(!data||!data.hourly||!data.hourly.time)return null;
+    const t=data.hourly.time,ms=targetTime.getTime();let ci=0,cd=Infinity;
+    for(let i=0;i<t.length;i++){const d=Math.abs(new Date(t[i]).getTime()-ms);if(d<cd){cd=d;ci=i}}
+    const r={};
+    for(const k in data.hourly)if(k!=='time')r[k]=data.hourly[k][ci];
+    return r
   },
-  buildTimeline(weather,day) {
-    if(!weather||!weather.hourly||!weather.hourly.time) return [];
-    const h=weather.hourly;
-    const todayApi=h.time[0].slice(0,10);
-    const tomorrowApi=new Date(new Date(todayApi).getTime()+86400000).toISOString().slice(0,10);
-    const prefix=day==='today'?todayApi:tomorrowApi;
+  buildTimeline(weather,day){
+    if(!weather||!weather.hourly||!weather.hourly.time)return[];
+    const h=weather.hourly,todayApi=h.time[0].slice(0,10),tomorrowApi=new Date(new Date(todayApi).getTime()+86400000).toISOString().slice(0,10),prefix=day==='today'?todayApi:tomorrowApi;
     const r=[];
-    for(let i=0;i<h.time.length;i++){if(!h.time[i].startsWith(prefix)) continue;
-      r.push({hour:parseInt(h.time[i].slice(11,13)),cloud_cover:h.cloud_cover[i],cloud_cover_low:h.cloud_cover_low[i],
-        cloud_cover_mid:h.cloud_cover_mid[i],cloud_cover_high:h.cloud_cover_high[i],temperature:h.temperature_2m[i],
-        humidity:h.relative_humidity_2m[i],visibility:h.visibility[i],precipitation:h.precipitation[i],
-        wind:h.wind_speed_10m[i],wind_dir:h.wind_direction_10m[i]});}
-    return r;
+    for(let i=0;i<h.time.length;i++){if(!h.time[i].startsWith(prefix))continue;
+      r.push({hour:parseInt(h.time[i].slice(11,13)),cloud_cover:h.cloud_cover[i],cloud_cover_low:h.cloud_cover_low[i],cloud_cover_mid:h.cloud_cover_mid[i],cloud_cover_high:h.cloud_cover_high[i],temperature:h.temperature_2m[i],humidity:h.relative_humidity_2m[i],visibility:h.visibility[i],precipitation:h.precipitation[i],wind:h.wind_speed_10m[i],wind_dir:h.wind_direction_10m[i]})}
+    return r
   },
-  async fetchAll(lat,lng,sunriseTime,sunsetTime,sunriseAz,sunsetAz) {
-    const [weather,airQuality]=await Promise.all([this.fetchWeather(lat,lng),this.fetchAirQuality(lat,lng)]);
+  async fetchAll(lat,lng,srTime,ssTime,srAz,ssAz){
+    const[weather,airQuality]=await Promise.all([this.fetchWeather(lat,lng),this.fetchAirQuality(lat,lng)]);
     let osr=null,oss=null;
-    if(sunriseAz!==null){const op=this.calculateOffset(lat,lng,sunriseAz,200);const ow=await this.fetchOffsetWeather(op.lat,op.lng);if(ow) osr=this.getHourlyData(ow,sunriseTime);}
-    if(sunsetAz!==null){const op=this.calculateOffset(lat,lng,sunsetAz,200);const ow=await this.fetchOffsetWeather(op.lat,op.lng);if(ow) oss=this.getHourlyData(ow,sunsetTime);}
-    return {weather,airQuality,todayTL:this.buildTimeline(weather,'today'),tomorrowTL:this.buildTimeline(weather,'tomorrow'),
-      sunData:{moonPhase:this.getMoonPhase(new Date()),moonPhaseTomorrow:this.getMoonPhase(new Date(Date.now()+86400000))},
-      sunrise:{hourly:this.getHourlyData(weather,sunriseTime),aqi:airQuality?this.getHourlyData(airQuality,sunriseTime):null,offsetCloud:osr,
-        aod:airQuality?.hourly?.aerosol_optical_depth?this.getHourlyData(airQuality,sunriseTime)?.aerosol_optical_depth:null,
-        humidity:weather.hourly?.relative_humidity_2m?this.getHourlyData(weather,sunriseTime)?.relative_humidity_2m:null},
-      sunset:{hourly:this.getHourlyData(weather,sunsetTime),aqi:airQuality?this.getHourlyData(airQuality,sunsetTime):null,offsetCloud:oss,
-        aod:airQuality?.hourly?.aerosol_optical_depth?this.getHourlyData(airQuality,sunsetTime)?.aerosol_optical_depth:null,
-        humidity:weather.hourly?.relative_humidity_2m?this.getHourlyData(weather,sunsetTime)?.relative_humidity_2m:null}};
+    if(srAz!==null){const op=this.calculateOffset(lat,lng,srAz,200);const ow=await this.fetchOffsetWeather(op.lat,op.lng);if(ow)osr=this.getHourlyData(ow,srTime)}
+    if(ssAz!==null){const op=this.calculateOffset(lat,lng,ssAz,200);const ow=await this.fetchOffsetWeather(op.lat,op.lng);if(ow)oss=this.getHourlyData(ow,ssTime)}
+    return{weather,airQuality,todayTL:this.buildTimeline(weather,'today'),tomorrowTL:this.buildTimeline(weather,'tomorrow'),sunData:{moonPhase:this.getMoonPhase(new Date())},
+      sunrise:{hourly:this.getHourlyData(weather,srTime),aqi:airQuality?this.getHourlyData(airQuality,srTime):null,offsetCloud:osr,aod:airQuality?.hourly?.aerosol_optical_depth?this.getHourlyData(airQuality,srTime)?.aerosol_optical_depth:null,humidity:weather.hourly?.relative_humidity_2m?this.getHourlyData(weather,srTime)?.relative_humidity_2m:null},
+      sunset:{hourly:this.getHourlyData(weather,ssTime),aqi:airQuality?this.getHourlyData(airQuality,ssTime):null,offsetCloud:oss,aod:airQuality?.hourly?.aerosol_optical_depth?this.getHourlyData(airQuality,ssTime)?.aerosol_optical_depth:null,humidity:weather.hourly?.relative_humidity_2m?this.getHourlyData(weather,ssTime)?.relative_humidity_2m:null}}
   }
 };
 
-// ====== Scoring Module (v2 — 论文 driven) ======
-const ScoringModule = {
-  scoreCloudLayers(high,mid,low) {
-    const hs=high===null||high===undefined?0.5:high>=20&&high<=70?1.0:high<10?0.3:high>80?0.4:0.7;
-    const ms=mid===null||mid===undefined?0.5:mid>=20&&mid<=60?0.7:mid<10?0.5:mid>80?0.3:0.6;
-    const ls=low===null||low===undefined?0.5:low>=20?0.2:low>10?0.4:0.7;
-    return hs*0.5+ms*0.3+ls*0.2;
+// ====== Scoring Module (v2) ======
+const ScoringModule={
+  scoreCloudLayers(high,mid,low){
+    const h=high==null?0.5:high>=20&&high<=70?1:high<10?0.3:high>80?0.4:0.7;
+    const m=mid==null?0.5:mid>=20&&mid<=60?0.7:mid<10?0.5:mid>80?0.3:0.6;
+    const l=low==null?0.5:low>=20?0.2:low>10?0.4:0.7;
+    return h*0.5+m*0.3+l*0.2
   },
-  scoreTotalCloud(c) { if(c===null||c===undefined) return 0.5; if(c<5) return 0.1; if(c<15) return 0.3; if(c<25) return 0.5; if(c<=60) return 1.0; if(c<=80) return 0.7; return 0.3; },
-  scoreCloudOffset(tc,oc,has) { if(!has||oc===null||oc===undefined) return 0.6; if(!(tc>=15&&tc<=80)) return 0.5; if(oc<15) return 1.0; if(oc<40) return 0.8; if(oc<70) return 0.5; return 0.2; },
-  scoreAOD(aod) { if(aod===null||aod===undefined) return 0.5; if(aod<0.05) return 0.3; if(aod<=0.15) return 0.8; if(aod<=0.30) return 1.0; if(aod<=0.50) return 0.7; if(aod<=0.80) return 0.4; return 0.2; },
-  scoreHumidity(h) { if(h===null||h===undefined) return 0.5; if(h<30) return 0.3; if(h<=50) return 0.6; if(h<=70) return 1.0; if(h<=85) return 0.8; if(h<=95) return 0.4; return 0.2; },
-  scoreAQI(a) { if(a===null||a===undefined) return 0.5; if(a<20) return 0.3; if(a<=50) return 0.5; if(a<=100) return 0.9; if(a<=150) return 0.6; if(a<=200) return 0.3; return 0.1; },
-  scoreVisibility(v) { if(v===null||v===undefined) return 0.5; const k=v/1000; if(k>20) return 1.0; if(k>10) return 0.8; if(k>5) return 0.5; if(k>2) return 0.3; return 0.1; },
-  scoreRainBonus(wd,tt) {
-    if(!wd||!wd.hourly||!wd.hourly.precipitation) return 0;
-    const times=wd.hourly.time,precip=wd.hourly.precipitation,ti=this._fic(times,tt); let hr=false;
-    for(let i=Math.max(0,ti-6);i<ti;i++){if(precip[i]>0.5) hr=true;}
-    const tp=precip[ti]||0,nc=tp<0.3; if(hr&&nc) return 1.0; if(hr) return 0.5; return 0;
+  scoreTotalCloud(c){if(c==null)return 0.5;if(c<5)return 0.1;if(c<15)return 0.3;if(c<25)return 0.5;if(c<=60)return 1;if(c<=80)return 0.7;return 0.3},
+  scoreCloudOffset(tc,oc,has){if(!has||oc==null)return 0.6;if(!(tc>=15&&tc<=80))return 0.5;if(oc<15)return 1;if(oc<40)return 0.8;if(oc<70)return 0.5;return 0.2},
+  scoreAOD(a){if(a==null)return 0.5;if(a<0.05)return 0.3;if(a<=0.15)return 0.8;if(a<=0.3)return 1;if(a<=0.5)return 0.7;if(a<=0.8)return 0.4;return 0.2},
+  scoreHumidity(h){if(h==null)return 0.5;if(h<30)return 0.3;if(h<=50)return 0.6;if(h<=70)return 1;if(h<=85)return 0.8;if(h<=95)return 0.4;return 0.2},
+  scoreAQI(a){if(a==null)return 0.5;if(a<20)return 0.3;if(a<=50)return 0.5;if(a<=100)return 0.9;if(a<=150)return 0.6;if(a<=200)return 0.3;return 0.1},
+  scoreVisibility(v){if(v==null)return 0.5;const k=v/1000;if(k>20)return 1;if(k>10)return 0.8;if(k>5)return 0.5;if(k>2)return 0.3;return 0.1},
+  scoreRainBonus(wd,tt){
+    if(!wd||!wd.hourly||!wd.hourly.precipitation)return 0;
+    const t=wd.hourly.time,p=wd.hourly.precipitation,ti=this._fic(t,tt);let hr=false;
+    for(let i=Math.max(0,ti-6);i<ti;i++)if(p[i]>0.5)hr=true;
+    const tp=p[ti]||0;return hr&&tp<0.3?1:hr?0.5:0
   },
-  _fic(times,tt){const tms=tt.getTime();let ci=0,cd=Infinity;for(let i=0;i<times.length;i++){const d=Math.abs(new Date(times[i]).getTime()-tms);if(d<cd){cd=d;ci=i;}}return ci;},
-  scoreTimeFit(hd,st){if(!hd||!hd.time)return 0.5;const d=Math.abs(new Date(hd.time).getTime()-st.getTime())/60000;if(d<=30)return 1.0;if(d<=60)return 0.8;if(d<=120)return 0.5;return 0.3;},
-  calculate(data,wf,isSunrise,sunTime,sunAz){
-    if(!data) return {score:0,level:'nodata',label:'数据不足',desc:'',factors:{}};
+  _fic(t,tt){const m=tt.getTime();let ci=0,cd=Infinity;for(let i=0;i<t.length;i++){const d=Math.abs(new Date(t[i]).getTime()-m);if(d<cd){cd=d;ci=i}}return ci},
+  scoreTimeFit(hd,st){if(!hd||!hd.time)return 0.5;const d=Math.abs(new Date(hd.time).getTime()-st.getTime())/6e4;return d<=30?1:d<=60?0.8:d<=120?0.5:0.3},
+  calculate(data,wf,isSunrise,st,sa){
+    if(!data)return{score:0,level:'nodata',label:'数据不足',desc:'',factors:{}};
     const cl=this.scoreCloudLayers(data.hourly?.cloud_cover_high,data.hourly?.cloud_cover_mid,data.hourly?.cloud_cover_low);
     const tc=this.scoreTotalCloud(data.hourly?.cloud_cover);
     const os=this.scoreCloudOffset(data.hourly?.cloud_cover,data.offsetCloud?.cloud_cover,data.offsetCloud!==null);
-    const aod=this.scoreAOD(data.aod); const hs=this.scoreHumidity(data.humidity);
-    const aq=this.scoreAQI(data.aqi?.european_aqi); const vs=this.scoreVisibility(data.hourly?.visibility);
-    const rb=this.scoreRainBonus(wf,sunTime); const ts=this.scoreTimeFit(data.hourly,sunTime);
-    const W={cl:0.25,tc:0.10,o:0.15,aod:0.15,h:0.10,aq:0.10,v:0.05,r:0.05,t:0.05};
-    const total=cl*W.cl+tc*W.tc+os*W.o+aod*W.aod+hs*W.h+aq*W.aq+vs*W.v+rb*W.r+ts*W.t;
-    const fs=Math.round(total*10*10)/10;
-    return{score:fs,level:this.getLevel(fs),label:this.getLabel(fs),
-      desc:this.genDesc(cl,os,aod,hs,vs,rb,aq,isSunrise),
-      factors:{cloud:{score:cl,value:data.hourly?.cloud_cover},offset:{score:os,value:data.offsetCloud?.cloud_cover,hasData:data.offsetCloud!==null},
-        aod:{score:aod,value:data.aod},humidity:{score:hs,value:data.humidity},
-        aqi:{score:aq,value:data.aqi?.european_aqi},visibility:{score:vs,value:data.hourly?.visibility},rain:{score:rb,value:null},timeFit:{score:ts,value:null}}};
+    const aod=this.scoreAOD(data.aod),hs=this.scoreHumidity(data.humidity);
+    const aq=this.scoreAQI(data.aqi?.european_aqi),vs=this.scoreVisibility(data.hourly?.visibility);
+    const rb=this.scoreRainBonus(wf,st),ts=this.scoreTimeFit(data.hourly,st);
+    const total=cl*0.25+tc*0.1+os*0.15+aod*0.15+hs*0.1+aq*0.1+vs*0.05+rb*0.05+ts*0.05;
+    const fs=Math.round(total*100)/10;
+    return{score:fs,level:this.getLevel(fs),label:this.getLabel(fs),desc:this.genDesc(cl,os,aod,hs,vs,rb,isSunrise),factors:{cloud:{score:cl,value:data.hourly?.cloud_cover},offset:{score:os,value:data.offsetCloud?.cloud_cover,hasData:data.offsetCloud!==null},aod:{score:aod,value:data.aod},humidity:{score:hs,value:data.humidity},aqi:{score:aq,value:data.aqi?.european_aqi},visibility:{score:vs,value:data.hourly?.visibility},rain:{score:rb,value:null},timeFit:{score:ts,value:null}}}
   },
-  getLevel(s){return s>=9?'excellent':s>=7?'good':s>=5?'fair':s>=3?'poor':'bad';},
-  getLabel(s){return s>=9?'绝佳':s>=7?'很好':s>=5?'一般':s>=3?'较差':'很差';},
-  genDesc(cl,os,aod,hs,vs,rb,aq,isSunrise){
-    const p=[]; if(cl>=0.7) p.push('高云丰富'); else if(cl<0.3) p.push('缺高云');
-    if(os>=0.8) p.push('太阳方向通透'); else if(os<0.4) p.push('太阳方向有遮挡');
-    if(aod>=0.7) p.push('气溶胶适中色彩浓郁'); else if(aod<0.3) p.push('大气过净');
-    if(hs>=0.7) p.push('湿度适宜'); else if(hs<0.3) p.push('过于干燥');
-    if(vs>=0.7) p.push('能见度好'); else if(vs<0.4) p.push('能见度差');
-    if(rb>=0.7) p.push('雨后初晴'); if(aq>=0.7) p.push('色彩通透'); else if(aq<0.3) p.push('污染较重');
-    if(p.length===0) return isSunrise?'朝霞条件一般':'晚霞条件一般';
-    const fd=p.join(' · '), lv=(cl+os+aod)/3;
-    if(lv>=0.7) return fd+'，推荐拍摄。'; if(lv>=0.4) return fd+'，可尝试。'; return fd+'，不建议专门前往。';
+  getLevel(s){return s>=9?'excellent':s>=7?'good':s>=5?'fair':s>=3?'poor':'bad'},
+  getLabel(s){return s>=9?'绝佳':s>=7?'很好':s>=5?'一般':s>=3?'较差':'很差'},
+  genDesc(cl,os,aod,hs,vs,rb,is){
+    const p=[];if(cl>=0.7)p.push('高云丰富');else if(cl<0.3)p.push('缺高云');
+    if(os>=0.8)p.push('太阳方向通透');else if(os<0.4)p.push('太阳方向遮挡');
+    if(aod>=0.7)p.push('气溶胶适中色彩浓郁');else if(aod<0.3)p.push('大气过净');
+    if(hs>=0.7)p.push('湿度适宜');else if(hs<0.3)p.push('过于干燥');
+    if(vs>=0.7)p.push('能见度好');else if(vs<0.4)p.push('能见度差');
+    if(rb>=0.7)p.push('雨后初晴');
+    if(p.length===0)return is?'朝霞一般':'晚霞一般';
+    const fd=p.join(' · ');const lv=(cl+os+aod)/3;
+    return lv>=0.7?fd+'，推荐拍摄。':lv>=0.4?fd+'，可尝试。':fd+'，不建议前往。'
   }
 };
 
 // ====== UI Module ======
-const UIModule = {
-  renderFullPage(data) {
-    const t=data['sunrise-today'], s=data['sunset-today'];
-    const tt=data['sunrise-tomorrow'], ts=data['sunset-tomorrow'];
-    const w=data.currentWeather||{}, sd=data.sunData||{}, tl=data.todayTL||[];
-    const weather=data.weather, airQuality=data.airQuality||null;
-
+const UIModule={
+  renderFullPage(data){
+    const t=data['sunrise-today'],s=data['sunset-today'],tt=data['sunrise-tomorrow'],ts=data['sunset-tomorrow'];
+    const w=data.currentWeather||{},sd=data.sunData||{},tl=data.todayTL||[],weather=data.weather,airQuality=data.airQuality||null;
     const temp=w.temperature!==undefined?Math.round(w.temperature)+'°':'--';
     const hum=w.humidity!==undefined?w.humidity+'%':'--';
     const wind=w.wind!==undefined?'↗'+Math.round(w.wind):'--';
-    // Moon phase emoji fix:
-    const mp=sd.moonPhase?.fraction;
-    const moonEmoji=mp>0.9?'🌕':mp>0.5?'🌔':mp>0.1?'🌒':'🌑';
-    const moonPct=sd.moonPhase?Math.round(sd.moonPhase.fraction*100):'--';
-
-    const hcT=this._buildHero(t,'今日朝霞','🌅');
-    const hcS=this._buildHero(s,'今日晚霞','🌇');
-    const mcT=this._buildMini(tt,'明日朝霞','🌅');
-    const mcS=this._buildMini(ts,'明日晚霞','🌇');
-
-    // Cloud timeline
-    const tlHtml=tl.map(h=>{
-      const hh=Math.max(2,h.cloud_cover_high/2), mh=Math.max(2,h.cloud_cover_mid/2), lh=Math.max(2,h.cloud_cover_low/2);
-      return `<div class="tl-col"><div class="tl-bars"><div class="tl-bar tl-hi" style="height:${hh}px"></div><div class="tl-bar tl-md" style="height:${mh}px"></div><div class="tl-bar tl-lo" style="height:${lh}px"></div></div><span class="tl-hr">${String(h.hour).padStart(2,'0')}</span></div>`;
-    }).join('');
-
-    // Factor for best score
+    const mp=sd.moonPhase?.fraction;const moonEmoji=mp>0.9?'🌕':mp>0.5?'🌔':mp>0.1?'🌒':'🌑';const moonPct=sd.moonPhase?Math.round(sd.moonPhase.fraction*100):'--';
+    const hT=this._hc(t,'今日朝霞','🌅'),hS=this._hc(s,'今日晚霞','🌇');
+    const mT=this._mc(tt,'明日朝霞','🌅'),mS=this._mc(ts,'明日晚霞','🌇');
+    const tlHtml=tl.map(h=>{const hh=Math.max(2,h.cloud_cover_high/2),mh=Math.max(2,h.cloud_cover_mid/2),lh=Math.max(2,h.cloud_cover_low/2);return'<div class="tl-c"><div class="tl-b"><div class="tl-hi" style="height:'+hh+'px"></div><div class="tl-md" style="height:'+mh+'px"></div><div class="tl-lo" style="height:'+lh+'px"></div></div><span class="tl-hr">'+String(h.hour).padStart(2,'0')+'</span></div>'}).join('');
     const best=s&&t&&s.score>=t.score?s:t||s||tt||ts;
-    const bestTitle=best===s?'今日晚霞':best===t?'今日朝霞':best===ts?'明日晚霞':'明日朝霞';
-    const factorHtml=best?this._buildFactors(bestTitle,best.factors):'';
-
-    // Trend
+    const bestT=best===s?'今日晚霞':best===t?'今日朝霞':best===ts?'明日晚霞':'明日朝霞';
     let trendHtml='';
     if(weather?.daily){
-      trendHtml='<div class="t-label spacer-sm" style="margin-top:24px">未来趋势</div><div class="trend">';
-      const dn=['周日','周一','周二','周三','周四','周五','周六'];
-      for(let i=0;i<Math.min(5,weather.daily.time.length);i++){
-        const d=new Date(weather.daily.time[i]), isT=i===0, isM=i===1;
-        const lb=isT?'今天':isM?'明天':dn[d.getDay()]||'';
-        let amC=50,pmC=50,aqV=50,viV=15000,amN=0,pmN=0,aqN=0,viN=0;
-        const ds=weather.daily.time[i].slice(0,10);
-        for(let h=0;h<weather.hourly.time.length;h++){if(!weather.hourly.time[h].startsWith(ds)) continue;
-          const hr=parseInt(weather.hourly.time[h].slice(11,13));
-          if(hr>=4&&hr<=7){amC+=weather.hourly.cloud_cover[h];amN++;}
-          if(hr>=17&&hr<=20){pmC+=weather.hourly.cloud_cover[h];pmN++;}
-          if(weather.hourly.visibility[h]!==undefined){viV+=weather.hourly.visibility[h];viN++;}}
-        if(amN>0) amC/=amN; else amC=50; if(pmN>0) pmC/=pmN; else pmC=50; if(viN>0) viV/=viN; else viV=15000;
-        if(airQuality?.hourly){for(let h=0;h<airQuality.hourly.time.length;h++){if(!airQuality.hourly.time[h].startsWith(ds)) continue;
-          const hr=parseInt(airQuality.hourly.time[h].slice(11,13)); if((hr>=4&&hr<=7)||(hr>=17&&hr<=20)){if(airQuality.hourly.european_aqi[h]!==undefined){aqV+=airQuality.hourly.european_aqi[h];aqN++;}}}
-          aqV=aqN>0?aqV/aqN:50;}
-        const cs=c=>c>=25&&c<=60?1:c<10?0.1:c>80?0.3:c<25?0.5:0.7;
-        const vs2=v=>v>10000?0.8:v>5000?0.5:0.3;
-        const as2=a=>a>=50&&a<=100?0.9:a>150?0.3:a>100?0.6:0.5;
-        const amS=Math.round((cs(amC)*0.5+vs2(viV)*0.3+as2(aqV)*0.2)*10);
-        const pmS=Math.round((cs(pmC)*0.5+vs2(viV)*0.3+as2(aqV)*0.2)*10);
-        const amCl=amS>=7?'#f59e0b':amS>=5?'rgba(255,255,255,0.55)':'rgba(255,255,255,0.32)';
-        const pmCl=pmS>=7?'#f59e0b':pmS>=5?'rgba(255,255,255,0.55)':'rgba(255,255,255,0.32)';
-        trendHtml+=`<div class="trend-day"><div class="trend-dow">${lb}</div><div class="trend-icon">🌅</div><div class="trend-score" style="color:${amCl}">${amS}</div><div class="trend-lbl">朝霞</div></div><div class="trend-day"><div class="trend-dow"></div><div class="trend-icon">🌇</div><div class="trend-score" style="color:${pmCl}">${pmS}</div><div class="trend-lbl">晚霞</div></div>`;
-      }
-      trendHtml+='</div>';
-    }
+      trendHtml='<div class="label-xs gap-sm" style="margin-top:24px">未来趋势</div><div class="tr">';const dn=['周日','周一','周二','周三','周四','周五','周六'];
+      for(let i=0;i<Math.min(5,weather.daily.time.length);i++){const d=new Date(weather.daily.time[i]);const lb=i===0?'今天':i===1?'明天':dn[d.getDay()]||'';let ac=50,pc=50,av=50,vv=15000,an=0,pn=0,qn=0,vn=0;const ds=weather.daily.time[i].slice(0,10);
+        for(let h=0;h<weather.hourly.time.length;h++){if(!weather.hourly.time[h].startsWith(ds))continue;const hr=parseInt(weather.hourly.time[h].slice(11,13));if(hr>=4&&hr<=7){ac+=weather.hourly.cloud_cover[h];an++}if(hr>=17&&hr<=20){pc+=weather.hourly.cloud_cover[h];pn++}if(weather.hourly.visibility[h]!==undefined){vv+=weather.hourly.visibility[h];vn++}}
+        if(an>0)ac/=an;else ac=50;if(pn>0)pc/=pn;else pc=50;if(vn>0)vv/=vn;else vv=15000;
+        if(airQuality?.hourly){for(let h=0;h<airQuality.hourly.time.length;h++){if(!airQuality.hourly.time[h].startsWith(ds))continue;const hr=parseInt(airQuality.hourly.time[h].slice(11,13));if((hr>=4&&hr<=7)||(hr>=17&&hr<=20)){if(airQuality.hourly.european_aqi[h]!==undefined){av+=airQuality.hourly.european_aqi[h];qn++}}}av=qn>0?av/qn:50}
+        const cs=c=>c>=25&&c<=60?1:c<10?0.1:c>80?0.3:c<25?0.5:0.7;const vs2=v=>v>10000?0.8:v>5000?0.5:0.3;const a2=a=>a>=50&&a<=100?0.9:a>150?0.3:a>100?0.6:0.5;
+        const as=Math.round((cs(ac)*0.5+vs2(vv)*0.3+a2(av)*0.2)*10),ps=Math.round((cs(pc)*0.5+vs2(vv)*0.3+a2(av)*0.2)*10);
+        const ac2=as>=7?'var(--accent)':as>=5?'var(--text-secondary)':'var(--text-quaternary)',pc2=ps>=7?'var(--accent)':ps>=5?'var(--text-secondary)':'var(--text-quaternary)';
+        trendHtml+='<div class="tr-d"><div class="tr-dw">'+lb+'</div><div class="tr-ic">🌅</div><div class="tr-sc" style="color:'+ac2+'">'+as+'</div><div class="tr-lb">朝霞</div></div><div class="tr-d"><div class="tr-dw"></div><div class="tr-ic">🌇</div><div class="tr-sc" style="color:'+pc2+'">'+ps+'</div><div class="tr-lb">晚霞</div></div>'}
+      trendHtml+='</div>'}
 
     const secs=[
-      `<div class="grid-2 spacer">${hcT}${hcS}</div>`,
-      `<div class="grid-4 spacer">`+
-        `<div class="wb-item"><div class="wb-val">${temp}</div><div class="wb-lbl">温度</div></div>`+
-        `<div class="wb-item"><div class="wb-val">${hum}</div><div class="wb-lbl">湿度</div></div>`+
-        `<div class="wb-item"><div class="wb-val">${wind}</div><div class="wb-lbl">风速 km/h</div></div>`+
-        `<div class="wb-item"><div class="wb-val">${moonEmoji}</div><div class="wb-lbl">月相 ${moonPct}%</div></div>`+
-      `</div>`,
-      this._buildInfoBar(data),
-      this._buildMilkyWay(data),
-      tl.length>0?`<div class="tl-wrap"><div class="tl-hdr"><span class="tl-hdr-l">云量时间线</span><span class="tl-hdr-r">现在 ▶</span></div><div class="tl-chart">${tlHtml}</div><div class="tl-lgd"><div class="tl-lgd-i"><div class="tl-lgd-d" style="background:#f59e0b"></div>高云</div><div class="tl-lgd-i"><div class="tl-lgd-d" style="background:#f97316"></div>中云</div><div class="tl-lgd-i"><div class="tl-lgd-d" style="background:rgba(255,255,255,0.2)"></div>低云</div></div></div>`:'',
-      factorHtml?`<div class="fp-wrap">${factorHtml}</div>`:'',
-      `<div class="divider"><span class="t-label">明日 ${new Date(Date.now()+86400000).getMonth()+1}月${new Date(Date.now()+86400000).getDate()}日</span></div>`,
-      `<div class="grid-2 spacer">${mcT}${mcS}</div>`,
+      '<div class="g2 gap">'+hT+hS+'</div>',
+      '<div class="g4 gap-sm">'+'<div class="wb"><div class="wb-v">'+temp+'</div><div class="wb-l">温度</div></div><div class="wb"><div class="wb-v">'+hum+'</div><div class="wb-l">湿度</div></div><div class="wb"><div class="wb-v">'+wind+'</div><div class="wb-l">风速 km/h</div></div><div class="wb"><div class="wb-v">'+moonEmoji+'</div><div class="wb-l">月相 '+moonPct+'%</div></div></div>',
+      this._ib(),
+      this._mw(),
+      tl.length>0?'<div class="tl"><div class="tl-h"><span class="label-xs">云量时间线</span><span style="font-size:10px;color:var(--accent);font-weight:500">现在 ▶</span></div><div class="tl-chart">'+tlHtml+'</div><div class="tl-ld"><div><div class="tl-hi" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>高云</div><div><div class="tl-md" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>中云</div><div><div class="tl-lo" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>低云</div></div></div>':'',
+      best?('<div class="fp"><div class="fp-h">'+bestT+'</div>'+this._bf(bestT,best.factors)+'</div>'):'',
+      '<div class="hr"><span class="label-xs">明日 '+(new Date(Date.now()+86400000).getMonth()+1)+'月'+new Date(Date.now()+86400000).getDate()+'日</span></div>',
+      '<div class="g2 gap-sm">'+mT+mS+'</div>',
       trendHtml
     ];
-
-    const main=document.querySelector('main'); if(!main) return;
+    const main=document.querySelector('main');if(!main)return;
     main.querySelectorAll('.dyn').forEach(e=>e.remove());
-    const d=document.createElement('div'); d.className='dyn'; d.innerHTML=secs.join('\n');
-    main.appendChild(d);
+    const d=document.createElement('div');d.className='dyn';d.innerHTML=secs.join('\n');
+    main.appendChild(d)
   },
-
-  _buildHero(p,title,emoji) {
-    if(!p||!p.score) return '<div class="surface" style="min-height:100px"><div style="padding:20px;font-size:13px;color:rgba(255,255,255,0.3)">加载中…</div></div>';
-    const isB=p.score>=7, pct=Math.min(100,(p.score/10)*100);
-    const nc=isB?'#f59e0b':p.score>=5?'rgba(255,255,255,0.62)':'rgba(255,255,255,0.40)';
-    const lc=isB?'#f59e0b':p.score>=5?'rgba(255,255,255,0.40)':'rgba(255,255,255,0.26)';
-    return `<div class="hero-card ${isB?'hero-card-best':''}" onclick="UIModule._switchFactor('${title}')">
-      <div class="hc-row"><span class="hc-tag">${emoji} ${title}</span><span class="hc-time">${p.timeRange||''}</span></div>
-      <div class="hc-score-row"><span class="hc-num" style="color:${nc}">${p.score.toFixed(1)}</span><span class="hc-lvl" style="color:${lc}">${p.label}</span></div>
-      <div class="hc-bar"><div class="hc-fill ${isB?'hc-fill-warm':'hc-fill-cool'}" style="width:${pct}%"></div></div>
-      ${p.desc?`<div class="hc-desc">${p.desc}</div>`:''}
-    </div>`;
+  _hc(p,t,e){
+    if(!p||!p.score)return'<div class="skeleton" style="min-height:100px"></div>';
+    const b=p.score>=7,pct=Math.min(100,p.score/10*100),nc=b?'var(--accent)':p.score>=5?'var(--text-secondary)':'var(--text-quaternary)',lc=b?'var(--accent)':p.score>=5?'var(--text-secondary)':'var(--text-quaternary)';
+    return'<div class="h-card '+(b?'h-card-best':'')+'" onclick="UIModule._sf(\''+t+'\')"><div class="h-row"><span class="h-tag">'+e+' '+t+'</span><span class="h-time">'+(p.timeRange||'')+'</span></div><div class="h-score"><span class="h-num" style="color:'+nc+'">'+p.score.toFixed(1)+'</span><span class="h-lvl" style="color:'+lc+'">'+p.label+'</span></div><div class="h-bar"><div class="h-fill '+(b?'h-fill-w':'h-fill-c')+'" style="width:'+pct+'%"></div></div>'+(p.desc?'<div class="h-desc">'+p.desc+'</div>':'')+'</div>'
   },
-
-  _buildMini(p,title,emoji) {
-    if(!p||!p.score) return '<div class="surface" style="min-height:60px;padding:16px"></div>';
-    const pct=Math.min(100,(p.score/10)*100);
-    const c=p.score>=7?'#f59e0b':p.score>=5?'rgba(255,255,255,0.62)':'rgba(255,255,255,0.40)';
-    return `<div class="mini-card" onclick="UIModule._switchFactor('${title}')">
-      <div class="mc-row"><span class="mc-tag">${emoji} ${title}</span><span class="mc-time">${p.timeRange||''}</span></div>
-      <span class="mc-score" style="color:${c}">${p.score.toFixed(1)}</span>
-      <div class="mc-bar"><div class="mc-fill" style="width:${pct}%;background:${p.score>=7?'linear-gradient(90deg,#f59e0b,#f97316)':'linear-gradient(90deg,rgba(255,255,255,0.18),rgba(255,255,255,0.35))'}"></div></div>
-    </div>`;
+  _mc(p,t,e){
+    if(!p||!p.score)return'<div class="skeleton" style="min-height:50px"></div>';
+    const pct=Math.min(100,p.score/10*100),c=p.score>=7?'var(--accent)':p.score>=5?'var(--text-secondary)':'var(--text-quaternary)';
+    return'<div class="m-card" onclick="UIModule._sf(\''+t+'\')"><div class="m-row"><span class="m-tag">'+e+' '+t+'</span><span class="m-time">'+(p.timeRange||'')+'</span></div><span class="m-score" style="color:'+c+'">'+p.score.toFixed(1)+'</span><div class="m-bar"><div class="m-fill" style="width:'+pct+'%;background:'+(p.score>=7?'var(--bar-warm)':'var(--bar-cool)')+'"></div></div></div>'
   },
-
-  _buildFactors(title,factors) {
-    if(!factors) return '';
-    let h=`<div class="fp-hdr">${title}</div>`;
-    const lbls={cloud:'云量',offset:'太阳方向',aod:'气溶胶(AOD)',humidity:'湿度',aqi:'AQI',visibility:'能见度',rain:'降水',timeFit:'时间'};
-    for(const[k,f]of Object.entries(factors)){
-      const pct=Math.round((f.score||0)*100);
-      let vt=''; if(f.value!==null&&f.value!==undefined){
-        vt=k==='aod'?f.value.toFixed(2):k==='visibility'?(f.value/1000).toFixed(0)+'km':k==='aqi'?f.value+'':k==='humidity'?f.value+'%':(k==='cloud'||k==='offset')?f.value+'%':'';
-      }
-      if(k==='offset'&&!f.hasData) vt='暂无'; if(k==='aod'&&!f.value) vt='暂无';
-      h+=`<div class="fp-row"><span class="fp-lbl">${lbls[k]||k}</span><div class="fp-bar-wrap"><div class="fp-bar-fill" style="width:${pct}%"></div></div><span class="fp-val">${vt}</span></div>`;
-    }
-    return h;
+  _bf(t,f){
+    if(!f)return'';let h='';const l={cloud:'云量',offset:'太阳方向',aod:'气溶胶(AOD)',humidity:'湿度',aqi:'AQI',visibility:'能见度',rain:'降水',timeFit:'时间'};
+    for(const[k,v]of Object.entries(f)){const pct=Math.round((v.score||0)*100);let vt='';if(v.value!==null&&v.value!==undefined){vt=k==='aod'?v.value.toFixed(2):k==='visibility'?(v.value/1000).toFixed(0)+'km':k==='aqi'?v.value+'':k==='humidity'?v.value+'%':(k==='cloud'||k==='offset')?v.value+'%':''}if(k==='offset'&&!v.hasData)vt='暂无';h+='<div class="fp-r"><span class="fp-l">'+(l[k]||k)+'</span><div class="fp-b"><div class="fp-f" style="width:'+pct+'%"></div></div><span class="fp-v">'+vt+'</span></div>'}return h
   },
-
-  _switchFactor(title) {
-    const map={'今日朝霞':'sunrise-today','今日晚霞':'sunset-today','明日朝霞':'sunrise-tomorrow','明日晚霞':'sunset-tomorrow'};
-    const key=map[title]; if(!key) return;
-    const p=App.getPeriodData(key); if(!p||!p.factors) return;
-    const fp=document.querySelector('.fp-wrap');
-    if(fp){fp.innerHTML=this._buildFactors(title,p.factors);fp.scrollIntoView({behavior:'smooth',block:'nearest'});}
-    else{/* If fp-wrap doesn't exist yet, insert one before the divider */}
+  _sf(t){
+    const m={'今日朝霞':'sunrise-today','今日晚霞':'sunset-today','明日朝霞':'sunrise-tomorrow','明日晚霞':'sunset-tomorrow'};const k=m[t];if(!k)return;
+    const p=App.getPeriodData(k);if(!p||!p.factors)return;
+    const fp=document.querySelector('.fp');if(fp){fp.innerHTML='<div class="fp-h">'+t+'</div>'+this._bf(t,p.factors);fp.scrollIntoView({behavior:'smooth',block:'nearest'})}
   },
-
-  _buildInfoBar(data) {
-    const lat=LocationModule.state.latitude; if(!lat) return '';
-    const times=SunCalcModule.getPhotoTimes(lat,LocationModule.state.longitude);
+  _ib(){
+    const lat=LocationModule.state.latitude;if(!lat)return'';
+    const t=SunCalcModule.getPhotoTimes(lat,LocationModule.state.longitude);
     const az=SunCalcModule.getSunriseSunsetAzimuth(lat,LocationModule.state.longitude);
-    const now=Date.now(), fmt=SunCalcModule.formatTime.bind(SunCalcModule);
-    const saText=SunCalcModule.azimuthToText(az.sunriseAzimuth);
-    const ssText=SunCalcModule.azimuthToText(az.sunsetAzimuth);
-    const saAlt=(az.sunriseAltitude*180/Math.PI).toFixed(1);
-    const ssAlt=(az.sunsetAltitude*180/Math.PI).toFixed(1);
-    const ms=times.morningGolden.start.getTime(), me=times.morningGolden.end.getTime();
-    const es=times.eveningGolden.start.getTime(), ee=times.eveningGolden.end.getTime();
-
-    if(now<ms){
-      const r=ms-now, h=Math.floor(r/3600000), m=Math.floor((r%3600000)/60000);
-      return `<div class="grid-2 spacer"><div class="info-item"><div class="info-label">距离朝霞</div><div class="info-cd">${h}<span class="info-cd-unit">时</span> ${m}<span class="info-cd-unit">分</span></div><div class="info-sub">${fmt(times.morningGolden.start)} — ${fmt(times.morningGolden.end)}</div></div><div class="info-item"><div class="info-label">日出方位</div><div class="info-dir">${saText}</div><div class="info-dir-alt">高度 ${saAlt}°</div></div></div>`;
-    }
-    if(now<me){
-      const r=me-now, m=Math.floor(r/60000);
-      return `<div class="grid-2 spacer"><div class="info-item"><div class="info-label">朝霞进行中</div><div class="info-cd">${m}<span class="info-cd-unit">分钟</span></div><div class="info-sub">距离结束</div></div><div class="info-item"><div class="info-label">日出方位</div><div class="info-dir">${saText}</div><div class="info-dir-alt">高度 ${saAlt}°</div></div></div>`;
-    }
-    if(now<es){
-      const r=es-now, h=Math.floor(r/3600000), m=Math.floor((r%3600000)/60000);
-      return `<div class="grid-2 spacer"><div class="info-item"><div class="info-label">距离晚霞</div><div class="info-cd">${h}<span class="info-cd-unit">时</span> ${m}<span class="info-cd-unit">分</span></div><div class="info-sub">${fmt(times.eveningGolden.start)} — ${fmt(times.eveningGolden.end)}</div></div><div class="info-item"><div class="info-label">日落方位</div><div class="info-dir">${ssText}</div><div class="info-dir-alt">高度 ${ssAlt}°</div></div></div>`;
-    }
-    return `<div class="grid-2 spacer"><div class="info-item"><div class="info-label">今日黄金时刻已过</div><div class="info-sub">明天 ${fmt(times.morningGolden.start)} 见</div></div></div>`;
+    const now=Date.now(),fmt=SunCalcModule.formatTime.bind(SunCalcModule);
+    const saText=SunCalcModule.azimuthToText(az.sunriseAzimuth),ssText=SunCalcModule.azimuthToText(az.sunsetAzimuth);
+    const saAlt=(az.sunriseAltitude*180/Math.PI).toFixed(1),ssAlt=(az.sunsetAltitude*180/Math.PI).toFixed(1);
+    const ms=t.morningGolden.start.getTime(),me=t.morningGolden.end.getTime(),es=t.eveningGolden.start.getTime();
+    if(now<ms){const r=ms-now,h=Math.floor(r/36e5),m=Math.floor((r%36e5)/6e4);return'<div class="g2 gap-sm"><div class="info"><div class="info-l">距离朝霞</div><div class="info-cd">'+h+'<span class="info-cd-u">时</span> '+m+'<span class="info-cd-u">分</span></div><div class="info-sub">'+fmt(t.morningGolden.start)+' — '+fmt(t.morningGolden.end)+'</div></div><div class="info"><div class="info-l">日出方位</div><div class="info-dir">'+saText+'</div><div class="info-da">高度 '+saAlt+'°</div></div></div>'}
+    if(now<me){const r=me-now,m=Math.floor(r/6e4);return'<div class="g2 gap-sm"><div class="info"><div class="info-l">朝霞进行中</div><div class="info-cd">'+m+'<span class="info-cd-u">分钟</span></div><div class="info-sub">距离结束</div></div><div class="info"><div class="info-l">日出方位</div><div class="info-dir">'+saText+'</div><div class="info-da">高度 '+saAlt+'°</div></div></div>'}
+    if(now<es){const r=es-now,h=Math.floor(r/36e5),m=Math.floor((r%36e5)/6e4);return'<div class="g2 gap-sm"><div class="info"><div class="info-l">距离晚霞</div><div class="info-cd">'+h+'<span class="info-cd-u">时</span> '+m+'<span class="info-cd-u">分</span></div><div class="info-sub">'+fmt(t.eveningGolden.start)+' — '+fmt(t.eveningGolden.end)+'</div></div><div class="info"><div class="info-l">日落方位</div><div class="info-dir">'+ssText+'</div><div class="info-da">高度 '+ssAlt+'°</div></div></div>'}
+    return'<div class="g2 gap-sm"><div class="info"><div class="info-l">今日已过</div><div class="info-sub">明天 '+fmt(t.morningGolden.start)+' 见</div></div></div>'
   },
-
-  _buildMilkyWay(data) {
-    const lat=LocationModule.state.latitude; if(!lat) return '';
-    const mw=SunCalcModule.getMilkyWayInfo(lat,LocationModule.state.longitude);
-    const fh=h=>{const hi=Math.floor(h),mi=Math.round((h-hi)*60);return String(hi).padStart(2,'0')+':'+String(mi).padStart(2,'0');};
-    return `<div class="mw-wrap"><div class="mw-hdr">银河可见性</div>
-      <div class="grid-3"><div class="mw-item"><div class="mw-val">${fh(mw.riseHour)}</div><div class="mw-lbl">升起</div></div><div class="mw-item"><div class="mw-val">${fh(mw.culmHour)}</div><div class="mw-lbl">最佳中天</div></div><div class="mw-item"><div class="mw-val">${fh(mw.setHour)}</div><div class="mw-lbl">落下</div></div></div>
-      <div style="text-align:center"><span class="mw-rating">${mw.moonPhaseText} · ${mw.rating}</span></div>
-      <div class="mw-note">最佳拍摄 ${fh(mw.bestStart)} — ${fh(mw.bestEnd)} · 月相 ${Math.round(mw.moonPhase*100)}%</div>
-    </div>`;
+  _mw(){
+    const lat=LocationModule.state.latitude;if(!lat)return'';
+    const m=SunCalcModule.getMilkyWayInfo(lat,LocationModule.state.longitude);
+    const fh=h=>{const hi=Math.floor(h),mi=Math.round((h-hi)*60);return String(hi).padStart(2,'0')+':'+String(mi).padStart(2,'0')};
+    return'<div class="mw"><div class="mw-h">银河可见性</div><div class="g3"><div class="mw-it"><div class="mw-v">'+fh(m.riseHour)+'</div><div class="mw-l">升起</div></div><div class="mw-it"><div class="mw-v">'+fh(m.culmHour)+'</div><div class="mw-l">最佳中天</div></div><div class="mw-it"><div class="mw-v">'+fh(m.setHour)+'</div><div class="mw-l">落下</div></div></div><div style="text-align:center"><span class="mw-b">'+m.moonPhaseText+' · '+m.rating+'</span></div><div class="mw-n">最佳拍摄 '+fh(m.bestStart)+' — '+fh(m.bestEnd)+' · 月相 '+Math.round(m.moonPhase*100)+'%</div></div>'
   },
-
-  showLoading() { const e=$('loadingSpinner'); if(e) e.style.display='inline-block'; },
-  hideLoading() { const e=$('loadingSpinner'); if(e) e.style.display='none'; },
-  showError(m) { show('errorBanner'); const e=$('errorMessage'); if(e) e.textContent=m; },
-  hideError() { hide('errorBanner'); },
-  updateLocationDisplay(n,lat,lng) {
-    const ne=$('locationName'); if(ne) ne.textContent=n;
-    const ce=$('locationCoords'); if(ce) ce.textContent=`北纬 ${lat.toFixed(4)}° · 东经 ${lng.toFixed(4)}°`;
-  }
+  showLoading(){const e=$('loadingSpinner');if(e)e.style.display='inline-block'},
+  hideLoading(){const e=$('loadingSpinner');if(e)e.style.display='none'},
+  showError(m){show('errorBanner');const e=$('errorMessage');if(e)e.textContent=m},
+  hideError(){hide('errorBanner')},
+  updateLocationDisplay(n,lat,lng){const ne=$('locationName');if(ne)ne.textContent=n;const ce=$('locationCoords');if(ce)ce.textContent='北纬 '+lat.toFixed(4)+'° · 东经 '+lng.toFixed(4)+'°'}
 };
 
 // ====== Map Module ======
-const MapModule = {
-  map:null, marker:null, isOpen:false,
-  open() {
-    show('mapPanel'); this.isOpen=true;
-    if(!this.map){
-      const {latitude,longitude}=LocationModule.state;
-      this.map=L.map('map').setView([latitude,longitude],10);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18}).addTo(this.map);
-      this.map.on('click',async e=>{const{lat,lng}=e.latlng;if(this.marker) this.marker.setLatLng([lat,lng]);else this.marker=L.marker([lat,lng]).addTo(this.map);LocationModule.setLocation(lat,lng);});
-    }else{this.map.invalidateSize();}
-    setTimeout(()=>this.map?.invalidateSize(),300);
-  },
-  close() { hide('mapPanel'); this.isOpen=false; },
-  toggle() { this.isOpen?this.close():this.open(); }
+const MapModule={map:null,marker:null,isOpen:false,
+  open(){show('mapPanel');this.isOpen=true;if(!this.map){const{latitude,longitude}=LocationModule.state;this.map=L.map('map').setView([latitude,longitude],10);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap',maxZoom:18}).addTo(this.map);this.map.on('click',async e=>{const{lat,lng}=e.latlng;if(this.marker)this.marker.setLatLng([lat,lng]);else this.marker=L.marker([lat,lng]).addTo(this.map);LocationModule.setLocation(lat,lng)})}else this.map.invalidateSize();setTimeout(()=>this.map?.invalidateSize(),300)},
+  close(){hide('mapPanel');this.isOpen=false},
+  toggle(){this.isOpen?this.close():this.open()}
 };
 
 // ====== App Controller ======
-const App = {
-  _dataCache:{},
-  async init() {
-    $('searchToggle')?.addEventListener('click',()=>{toggle('searchPanel');if(!isHidden('searchPanel')) $('searchInput')?.focus();});
+const App={_dataCache:{},
+  async init(){
+    Theme.init();
+    $('themeToggle')?.addEventListener('click',()=>Theme.toggle());
+    $('searchToggle')?.addEventListener('click',()=>{tog('searchPanel');if(!hidden('searchPanel'))$('searchInput')?.focus()});
     $('mapToggle')?.addEventListener('click',()=>MapModule.toggle());
     $('locateBtn')?.addEventListener('click',()=>LocationModule.init());
-    $('searchInput')?.addEventListener('input',async e=>{
-      const q=e.target.value.trim();if(q.length<2){$('searchResults').innerHTML='';return;}
-      try{const rs=await LocationModule.searchCity(q);const c=$('searchResults');
-        c.innerHTML=rs.slice(0,5).map((r,i)=>`<button class="search-item" data-lat="${parseFloat(r.lat)}" data-lng="${parseFloat(r.lon)}" data-idx="${i}">${escapeHtml(r.display_name)}</button>`).join('');
-        c.querySelectorAll('button').forEach(b=>{b.addEventListener('click',()=>{const lat=parseFloat(b.dataset.lat),lng=parseFloat(b.dataset.lng),n=rs[parseInt(b.dataset.idx)].display_name;App.selectSearchResult(lat,lng,n);});});
-      }catch{$('searchResults').innerHTML='<p style="font-size:12px;color:rgba(255,255,255,0.3);padding:8px">搜索失败，请重试</p>';}
+    $('searchInput')?.addEventListener('input',async e=>{const q=e.target.value.trim();if(q.length<2){$('searchResults').innerHTML='';return}
+      try{const rs=await LocationModule.searchCity(q);const c=$('searchResults');c.innerHTML=rs.slice(0,5).map((r,i)=>'<button data-lat="'+parseFloat(r.lat)+'" data-lng="'+parseFloat(r.lon)+'" data-idx="'+i+'" class="search-item" style="display:block;width:100%;text-align:left;padding:10px 14px;border-radius:12px;font-size:13px;color:var(--text-secondary);cursor:pointer;font-family:inherit;background:var(--bg-card);border:1px solid var(--border-light)">'+esc(r.display_name)+'</button>').join('');
+      c.querySelectorAll('button').forEach(b=>{b.addEventListener('click',()=>{const lat=parseFloat(b.dataset.lat),lng=parseFloat(b.dataset.lng),n=rs[parseInt(b.dataset.idx)].display_name;App.selectSearchResult(lat,lng,n)})})}catch{$('searchResults').innerHTML='<p style="font-size:12px;color:var(--text-quaternary);padding:8px">搜索失败</p>'}
     });
-    $('retryBtn')?.addEventListener('click',()=>{UIModule.hideError();LocationModule.init();});
-    if('serviceWorker' in navigator) window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});
-    window.addEventListener('online',()=>{UIModule.hideError();LocationModule.init();});
-    window.addEventListener('offline',()=>{UIModule.showError('网络已断开');});
-    await LocationModule.init();
+    $('retryBtn')?.addEventListener('click',()=>{UIModule.hideError();LocationModule.init()});
+    if('serviceWorker'in navigator)window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{})});
+    window.addEventListener('online',()=>{UIModule.hideError();LocationModule.init()});
+    window.addEventListener('offline',()=>{UIModule.showError('网络已断开')});
+    await LocationModule.init()
   },
-  selectSearchResult(lat,lng,name) { LocationModule.state.cityName=name; LocationModule.setLocation(lat,lng); hide('searchPanel'); $('searchInput').value=''; $('searchResults').innerHTML=''; },
-  async updateLocation(name,lat,lng) {
-    UIModule.showLoading(); UIModule.hideError(); UIModule.updateLocationDisplay(name,lat,lng);
+  selectSearchResult(lat,lng,name){LocationModule.state.cityName=name;LocationModule.setLocation(lat,lng);hide('searchPanel');$('searchInput').value='';$('searchResults').innerHTML=''},
+  async updateLocation(name,lat,lng){
+    UIModule.showLoading();UIModule.hideError();UIModule.updateLocationDisplay(name,lat,lng);
     try{
-      const today=new Date(), tomorrow=new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
-      const tT=SunCalcModule.getPhotoTimes(lat,lng,today), mT=SunCalcModule.getPhotoTimes(lat,lng,tomorrow);
-      if(!SunCalcModule.hasValidTimes(lat,lng,today)){UIModule.hideLoading();UIModule.showError('该地区当前处于极昼或极夜，无日出/日落数据');return;}
-      const tAz=SunCalcModule.getSunriseSunsetAzimuth(lat,lng,today), mAz=SunCalcModule.getSunriseSunsetAzimuth(lat,lng,tomorrow);
-      const ad=await WeatherModule.fetchAll(lat,lng,tT.morningGolden.start,tT.eveningGolden.end,tAz.sunriseAzimuth,tAz.sunsetAzimuth);
-
-      const tSR=ScoringModule.calculate(ad.sunrise,ad.weather,true,tT.morningGolden.start,tAz.sunriseAzimuth);
-      tSR.timeRange=SunCalcModule.formatTime(tT.morningGolden.start)+'-'+SunCalcModule.formatTime(tT.morningGolden.end);
-      const tSS=ScoringModule.calculate(ad.sunset,ad.weather,false,tT.eveningGolden.end,tAz.sunsetAzimuth);
-      tSS.timeRange=SunCalcModule.formatTime(tT.eveningGolden.start)+'-'+SunCalcModule.formatTime(tT.eveningGolden.end);
-
-      let mSR=null,mSS=null;
-      if(SunCalcModule.hasValidTimes(lat,lng,tomorrow)){
-        const td=WeatherModule.getHourlyData(ad.weather,mT.morningGolden.start);
-        const ts=WeatherModule.getHourlyData(ad.weather,mT.eveningGolden.end);
-        const tad=WeatherModule.getHourlyData(ad.airQuality,mT.morningGolden.start);
-        const tas=WeatherModule.getHourlyData(ad.airQuality,mT.eveningGolden.end);
-        mSR=ScoringModule.calculate({hourly:td,aqi:tad,offsetCloud:null},ad.weather,true,mT.morningGolden.start,mAz.sunriseAzimuth);
-        mSR.timeRange=SunCalcModule.formatTime(mT.morningGolden.start)+'-'+SunCalcModule.formatTime(mT.morningGolden.end);
-        mSS=ScoringModule.calculate({hourly:ts,aqi:tas,offsetCloud:null},ad.weather,false,mT.eveningGolden.end,mAz.sunsetAzimuth);
-        mSS.timeRange=SunCalcModule.formatTime(mT.eveningGolden.start)+'-'+SunCalcModule.formatTime(mT.eveningGolden.end);
-      }
-
-      const ch=today.getHours();
-      const ctl=ad.todayTL?.find(h=>h.hour===ch)||ad.todayTL?.[0]||{};
-      this._dataCache={'sunrise-today':tSR,'sunset-today':tSS,'sunrise-tomorrow':mSR,'sunset-tomorrow':mSS,
-        weather:ad.weather,airQuality:ad.airQuality,todayTL:ad.todayTL,tomorrowTL:ad.tomorrowTL,sunData:ad.sunData,currentWeather:ctl};
-      UIModule.renderFullPage(this._dataCache);
-      UIModule.hideLoading();
-    }catch(e){UIModule.hideLoading();UIModule.showError('数据加载失败: '+e.message);}
+      const t=new Date(),tw=new Date(t);tw.setDate(tw.getDate()+1);
+      const tt=SunCalcModule.getPhotoTimes(lat,lng,t),mt=SunCalcModule.getPhotoTimes(lat,lng,tw);
+      if(!SunCalcModule.hasValidTimes(lat,lng,t)){UIModule.hideLoading();UIModule.showError('极昼或极夜，无日出/日落数据');return}
+      const ta=SunCalcModule.getSunriseSunsetAzimuth(lat,lng,t),ma=SunCalcModule.getSunriseSunsetAzimuth(lat,lng,tw);
+      const ad=await WeatherModule.fetchAll(lat,lng,tt.morningGolden.start,tt.eveningGolden.end,ta.sunriseAzimuth,ta.sunsetAzimuth);
+      const ts=ScoringModule.calculate(ad.sunrise,ad.weather,true,tt.morningGolden.start,ta.sunriseAzimuth);
+      ts.timeRange=SunCalcModule.formatTime(tt.morningGolden.start)+'-'+SunCalcModule.formatTime(tt.morningGolden.end);
+      const sss=ScoringModule.calculate(ad.sunset,ad.weather,false,tt.eveningGolden.end,ta.sunsetAzimuth);
+      sss.timeRange=SunCalcModule.formatTime(tt.eveningGolden.start)+'-'+SunCalcModule.formatTime(tt.eveningGolden.end);
+      let ms=null,mss=null;
+      if(SunCalcModule.hasValidTimes(lat,lng,tw)){const td=WeatherModule.getHourlyData(ad.weather,mt.morningGolden.start),ts2=WeatherModule.getHourlyData(ad.weather,mt.eveningGolden.end),tad=WeatherModule.getHourlyData(ad.airQuality,mt.morningGolden.start),tas=WeatherModule.getHourlyData(ad.airQuality,mt.eveningGolden.end);
+        ms=ScoringModule.calculate({hourly:td,aqi:tad,offsetCloud:null},ad.weather,true,mt.morningGolden.start,ma.sunriseAzimuth);ms.timeRange=SunCalcModule.formatTime(mt.morningGolden.start)+'-'+SunCalcModule.formatTime(mt.morningGolden.end);
+        mss=ScoringModule.calculate({hourly:ts2,aqi:tas,offsetCloud:null},ad.weather,false,mt.eveningGolden.end,ma.sunsetAzimuth);mss.timeRange=SunCalcModule.formatTime(mt.eveningGolden.start)+'-'+SunCalcModule.formatTime(mt.eveningGolden.end)}
+      const ch=t.getHours(),ctl=ad.todayTL?.find(h=>h.hour===ch)||ad.todayTL?.[0]||{};
+      this._dataCache={'sunrise-today':ts,'sunset-today':sss,'sunrise-tomorrow':ms,'sunset-tomorrow':mss,weather:ad.weather,airQuality:ad.airQuality,todayTL:ad.todayTL,tomorrowTL:ad.tomorrowTL,sunData:ad.sunData,currentWeather:ctl};
+      UIModule.renderFullPage(this._dataCache);UIModule.hideLoading()
+    }catch(e){UIModule.hideLoading();UIModule.showError('加载失败: '+e.message)}
   },
-  getPeriodData(key) { return this._dataCache[key]||null; }
+  getPeriodData(k){return this._dataCache[k]||null}
 };
-
 document.addEventListener('DOMContentLoaded',()=>App.init());
   </script>
 </body>
