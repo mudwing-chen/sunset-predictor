@@ -194,20 +194,20 @@
     /* ─── Trend Cards (like sunset-predictor.vercel.app) ─── */
     .tr-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px}
     @media(min-width:640px){.tr-grid{grid-template-columns:1fr 1fr}}
-    .tr-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);overflow:hidden}
-    .tr-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .tr-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+    .tr-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
     .tr-hdr span:first-child{font-size:15px;font-weight:600;color:var(--text)}
     .tr-date{font-size:12px;color:var(--text-tertiary);font-weight:500}
-    .tr-section{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;padding:8px 0;border-bottom:1px solid var(--border-light)}
-    .tr-section:last-of-type{border-bottom:none;margin-bottom:0}
-    .tr-sec-hdr{font-size:14px;font-weight:500;color:var(--text-secondary)}
-    .tr-bdg{display:inline-flex;align-items:baseline;gap:2px;padding:2px 10px;border-radius:20px;font-size:18px;font-weight:700;border:1px solid;line-height:1.4}
-    .tr-factors{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;padding:6px 0 4px 4px;font-size:11px}
-    .tr-f{display:flex;align-items:center;gap:6px}
-    .tr-fl{color:var(--text-tertiary);width:28px;flex-shrink:0;font-weight:500}
-    .tr-fb{flex:1;height:4px;border-radius:4px;background:var(--border-light);overflow:hidden}
-    .tr-ff{height:100%;border-radius:4px;background:var(--bar-fill);transition:width 0.5s}
-    .tr-fv{color:var(--text-quaternary);width:32px;text-align:right;font-weight:500}
+    .tr-stitle{display:flex;align-items:center;justify-content:space-between;margin:6px 0 4px}
+    .tr-stitle span:first-child{font-size:14px;font-weight:500;color:var(--text-secondary)}
+    .tr-bdg{font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:1px}
+    .tr-bdg-s{font-size:11px;font-weight:400;opacity:0.5;margin-left:1px}
+    .tr-bars{display:grid;gap:5px;margin-bottom:6px}
+    .tr-b{display:flex;align-items:center;gap:6px}
+    .tr-bl{font-size:11px;color:var(--text-tertiary);width:32px;flex-shrink:0}
+    .tr-bw{flex:1;height:4px;border-radius:4px;background:var(--border-light);overflow:hidden}
+    .tr-bf{height:100%;border-radius:4px;background:var(--bar-fill);transition:width 0.5s}
+    .tr-bv{font-size:10px;color:var(--text-quaternary);width:32px;text-align:right;font-weight:500}
 
     .tl{padding:18px;border-radius:20px;margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border-light)}
     .tl-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -536,26 +536,19 @@ const UIModule={
       trendHtml='<div class="label-xs gap" style="margin-top:24px">未来趋势</div><div class="tr-grid">';
       for(const ds of dayScores){
         const ac2=ds.amS>=7?'#f97316':'#6b7280',pc2=ds.pmS>=7?'#f97316':'#6b7280';
-        const aBg=ds.amS>=7?'#fff7ed':ds.amS>=5?'#f9fafb':'#f9fafb';
-        const pBg=ds.pmS>=7?'#fff7ed':ds.pmS>=5?'#f9fafb':'#f9fafb';
-        const aBd=ds.amS>=7?'#fed7aa':ds.amS>=5?'#e5e7eb':'#e5e7eb';
-        const pBd=ds.pmS>=7?'#fed7aa':ds.pmS>=5?'#e5e7eb':'#e5e7eb';
         const dayStr=ds.date.toLocaleDateString('zh-CN',{month:'short',day:'numeric'});
         trendHtml+='<div class="tr-card"><div class="tr-hdr"><span>'+ds.label+'</span><span class="tr-date">'+dayStr+'</span></div>'+
-          '<div class="tr-section"><div class="tr-sec-hdr">🌅 朝霞</div><div class="tr-bdg" style="background:'+aBg+';border-color:'+aBd+';color:'+ac2+'">'+ds.amS+'<span style="font-size:10px;opacity:0.6">/10</span></div></div>'+
-          '<div class="tr-factors">'+
-          '<div class="tr-f"><span class="tr-fl">高云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.ah)+'%"></div></div><span class="tr-fv">'+Math.round(ds.ah)+'%</span></div>'+
-          '<div class="tr-f"><span class="tr-fl">中云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.am)+'%"></div></div><span class="tr-fv">'+Math.round(ds.am)+'%</span></div>'+
-          '<div class="tr-f"><span class="tr-fl">低云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.al)+'%"></div></div><span class="tr-fv">'+Math.round(ds.al)+'%</span></div>'+
-          '<div class="tr-f"><span class="tr-fl">能见度</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.min(100,Math.round(ds.vv/150))+'%"></div></div><span class="tr-fv">'+Math.round(ds.vv/1000)+'km</span></div>'+
-          '</div></div>'+
-          '<div class="tr-section"><div class="tr-sec-hdr">🌇 晚霞</div><div class="tr-bdg" style="background:'+pBg+';border-color:'+pBd+';color:'+pc2+'">'+ds.pmS+'<span style="font-size:10px;opacity:0.6">/10</span></div></div>'+
-          '<div class="tr-factors">'+
-          '<div class="tr-f"><span class="tr-fl">高云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.ph)+'%"></div></div><span class="tr-fv">'+Math.round(ds.ph)+'%</span></div>'+
-          '<div class="tr-f"><span class="tr-fl">中云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.pm)+'%"></div></div><span class="tr-fv">'+Math.round(ds.pm)+'%</span></div>'+
-          '<div class="tr-f"><span class="tr-fl">低云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.pl)+'%"></div></div><span class="tr-fv">'+Math.round(ds.pl)+'%</span></div>'+
-          '<div class="tr-f"><span class="tr-fl">能见度</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.min(100,Math.round(ds.vv/150))+'%"></div></div><span class="tr-fv">'+Math.round(ds.vv/1000)+'km</span></div>'+
-          '</div></div>';
+          '<div class="tr-stitle"><span>🌅 朝霞</span><span class="tr-bdg" style="color:'+ac2+'">'+ds.amS+'<span class="tr-bdg-s">/10</span></span></div>'+
+          '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ah)+'%"></div></div><span class="tr-bv">'+Math.round(ds.ah)+'%</span></div>'+
+          '<div class="tr-b"><span class="tr-bl">中云</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.am)+'%"></div></div><span class="tr-bv">'+Math.round(ds.am)+'%</span></div>'+
+          '<div class="tr-b"><span class="tr-bl">低云</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.al)+'%"></div></div><span class="tr-bv">'+Math.round(ds.al)+'%</span></div>'+
+          '<div class="tr-b"><span class="tr-bl">能见度</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
+          '<div class="tr-stitle"><span>🌇 晚霞</span><span class="tr-bdg" style="color:'+pc2+'">'+ds.pmS+'<span class="tr-bdg-s">/10</span></span></div>'+
+          '<div class="tr-bars"><div class="tr-b"><span class="tr-bl">高云</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.ph)+'%"></div></div><span class="tr-bv">'+Math.round(ds.ph)+'%</span></div>'+
+          '<div class="tr-b"><span class="tr-bl">中云</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pm)+'%"></div></div><span class="tr-bv">'+Math.round(ds.pm)+'%</span></div>'+
+          '<div class="tr-b"><span class="tr-bl">低云</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.round(ds.pl)+'%"></div></div><span class="tr-bv">'+Math.round(ds.pl)+'%</span></div>'+
+          '<div class="tr-b"><span class="tr-bl">能见度</span><div class="tr-bw"><div class="tr-bf" style="width:'+Math.min(100,Math.round(ds.vv/200))+'%"></div></div><span class="tr-bv">'+Math.round(ds.vv/1000)+'km</span></div></div>'+
+          '</div>'
       }
       trendHtml+='</div>'
     }
