@@ -191,6 +191,24 @@
     .info-da{font-size:12px;color:var(--text-secondary);margin-top:2px}
     @media(max-width:640px){.info-cd{font-size:24px}}
 
+    /* ─── Trend Cards (like sunset-predictor.vercel.app) ─── */
+    .tr-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px}
+    @media(min-width:640px){.tr-grid{grid-template-columns:1fr 1fr}}
+    .tr-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);overflow:hidden}
+    .tr-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .tr-hdr span:first-child{font-size:15px;font-weight:600;color:var(--text)}
+    .tr-date{font-size:12px;color:var(--text-tertiary);font-weight:500}
+    .tr-section{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;padding:8px 0;border-bottom:1px solid var(--border-light)}
+    .tr-section:last-of-type{border-bottom:none;margin-bottom:0}
+    .tr-sec-hdr{font-size:14px;font-weight:500;color:var(--text-secondary)}
+    .tr-bdg{display:inline-flex;align-items:baseline;gap:2px;padding:2px 10px;border-radius:20px;font-size:18px;font-weight:700;border:1px solid;line-height:1.4}
+    .tr-factors{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;padding:6px 0 4px 4px;font-size:11px}
+    .tr-f{display:flex;align-items:center;gap:6px}
+    .tr-fl{color:var(--text-tertiary);width:28px;flex-shrink:0;font-weight:500}
+    .tr-fb{flex:1;height:4px;border-radius:4px;background:var(--border-light);overflow:hidden}
+    .tr-ff{height:100%;border-radius:4px;background:var(--bar-fill);transition:width 0.5s}
+    .tr-fv{color:var(--text-quaternary);width:32px;text-align:right;font-weight:500}
+
     .tl{padding:18px;border-radius:20px;margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border-light)}
     .tl-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
     .tl-chart{display:flex;gap:4px;align-items:flex-end;height:60px;overflow-x:auto;padding-bottom:4px}
@@ -220,13 +238,6 @@
     .m-score{font-size:26px;font-weight:700;letter-spacing:-1px}
     .m-bar{height:3px;border-radius:3px;background:var(--border-light);margin-top:8px;overflow:hidden}
     .m-fill{height:100%;border-radius:3px}
-
-    .tr{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
-    .tr-d{min-width:54px;text-align:center;padding:10px 4px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-light)}
-    .tr-dw{font-size:9px;color:var(--text-quaternary);margin-bottom:4px}
-    .tr-ic{font-size:14px;margin-bottom:4px}
-    .tr-sc{font-size:14px;font-weight:700}
-    .tr-lb{font-size:8px;color:var(--text-quaternary);margin-top:2px}
 
     .mw{padding:18px;border-radius:20px;margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border-light)}
     .mw-h{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
@@ -501,16 +512,53 @@ const UIModule={
     const bestT=best===s?'今日晚霞':best===t?'今日朝霞':best===ts?'明日晚霞':'明日朝霞';
     let trendHtml='';
     if(weather?.daily){
-      trendHtml='<div class="label-xs gap-sm" style="margin-top:24px">未来趋势</div><div class="tr">';const dn=['周日','周一','周二','周三','周四','周五','周六'];
-      for(let i=0;i<Math.min(5,weather.daily.time.length);i++){const d=new Date(weather.daily.time[i]);const lb=i===0?'今天':i===1?'明天':dn[d.getDay()]||'';let ac=50,pc=50,av=50,vv=15000,an=0,pn=0,qn=0,vn=0;const ds=weather.daily.time[i].slice(0,10);
-        for(let h=0;h<weather.hourly.time.length;h++){if(!weather.hourly.time[h].startsWith(ds))continue;const hr=parseInt(weather.hourly.time[h].slice(11,13));if(hr>=4&&hr<=7){ac+=weather.hourly.cloud_cover[h];an++}if(hr>=17&&hr<=20){pc+=weather.hourly.cloud_cover[h];pn++}if(weather.hourly.visibility[h]!==undefined){vv+=weather.hourly.visibility[h];vn++}}
-        if(an>0)ac/=an;else ac=50;if(pn>0)pc/=pn;else pc=50;if(vn>0)vv/=vn;else vv=15000;
-        if(airQuality?.hourly){for(let h=0;h<airQuality.hourly.time.length;h++){if(!airQuality.hourly.time[h].startsWith(ds))continue;const hr=parseInt(airQuality.hourly.time[h].slice(11,13));if((hr>=4&&hr<=7)||(hr>=17&&hr<=20)){if(airQuality.hourly.european_aqi[h]!==undefined){av+=airQuality.hourly.european_aqi[h];qn++}}}av=qn>0?av/qn:50}
-        const cs=c=>c>=25&&c<=60?1:c<10?0.1:c>80?0.3:c<25?0.5:0.7;const vs2=v=>v>10000?0.8:v>5000?0.5:0.3;const a2=a=>a>=50&&a<=100?0.9:a>150?0.3:a>100?0.6:0.5;
-        const as=Math.round((cs(ac)*0.5+vs2(vv)*0.3+a2(av)*0.2)*10),ps=Math.round((cs(pc)*0.5+vs2(vv)*0.3+a2(av)*0.2)*10);
-        const ac2=as>=7?'var(--accent)':as>=5?'var(--text-secondary)':'var(--text-quaternary)',pc2=ps>=7?'var(--accent)':ps>=5?'var(--text-secondary)':'var(--text-quaternary)';
-        trendHtml+='<div class="tr-d"><div class="tr-dw">'+lb+'</div><div class="tr-ic">🌅</div><div class="tr-sc" style="color:'+ac2+'">'+as+'</div><div class="tr-lb">朝霞</div></div><div class="tr-d"><div class="tr-dw"></div><div class="tr-ic">🌇</div><div class="tr-sc" style="color:'+pc2+'">'+ps+'</div><div class="tr-lb">晚霞</div></div>'}
-      trendHtml+='</div>'}
+      const dn=['周日','周一','周二','周三','周四','周五','周六'];
+      const dayScores=[];
+      for(let i=0;i<Math.min(7,weather.daily.time.length);i++){
+        const d=new Date(weather.daily.time[i]);const lb=i===0?'今天':i===1?'明天':dn[d.getDay()]||'';
+        let ac=50,pc=50,av=50,vv=15000,an=0,pn=0,qn=0,vn=0,ah=0,am=0,al=0,ahn=0,amn=0,aln=0,ph=0,pm=0,pl=0,phn=0,pmn=0,pln=0;
+        const ds=weather.daily.time[i].slice(0,10);
+        for(let h=0;h<weather.hourly.time.length;h++){if(!weather.hourly.time[h].startsWith(ds))continue;
+          const hr=parseInt(weather.hourly.time[h].slice(11,13));
+          if(hr>=4&&hr<=7){ac+=weather.hourly.cloud_cover[h];an++;ah+=weather.hourly.cloud_cover_high[h];ahn++;am+=weather.hourly.cloud_cover_mid[h];amn++;al+=weather.hourly.cloud_cover_low[h];aln++}
+          if(hr>=17&&hr<=20){pc+=weather.hourly.cloud_cover[h];pn++;ph+=weather.hourly.cloud_cover_high[h];phn++;pm+=weather.hourly.cloud_cover_mid[h];pmn++;pl+=weather.hourly.cloud_cover_low[h];pln++}
+          if(weather.hourly.visibility[h]!==undefined){vv+=weather.hourly.visibility[h];vn++}}
+        if(an>0){ac/=an;ah/=ahn;am/=amn;al/=aln}else{ac=50;ah=50;am=50;al=50}
+        if(pn>0){pc/=pn;ph/=phn;pm/=pmn;pl/=pln}else{pc=50;ph=50;pm=50;pl=50}
+        if(vn>0)vv/=vn;else vv=15000;
+        if(airQuality?.hourly){av=0;qn=0;for(let h=0;h<airQuality.hourly.time.length;h++){if(!airQuality.hourly.time[h].startsWith(ds))continue;const hr=parseInt(airQuality.hourly.time[h].slice(11,13));if((hr>=4&&hr<=7)||(hr>=17&&hr<=20)){if(airQuality.hourly.european_aqi[h]!==undefined){av+=airQuality.hourly.european_aqi[h];qn++}}}av=qn>0?av/qn:50}
+        const cs=c=>c>=25&&c<=60?1:c<10?0.1:c>80?0.3:c<25?0.5:0.7;
+        const vs2=v=>v>10000?0.8:v>5000?0.5:0.3;const a2=a=>a>=50&&a<=100?0.9:a>150?0.3:a>100?0.6:0.5;
+        const amS=Math.round((cs(ac)*0.5+vs2(vv)*0.3+a2(av)*0.2)*10);
+        const pmS=Math.round((cs(pc)*0.5+vs2(vv)*0.3+a2(av)*0.2)*10);
+        dayScores.push({label:lb,date:d,amS,pmS,ac,pc,ah,am,al,ph,pm,pl,vv,av})
+      }
+      trendHtml='<div class="label-xs gap" style="margin-top:24px">未来趋势</div><div class="tr-grid">';
+      for(const ds of dayScores){
+        const ac2=ds.amS>=7?'#f97316':'#6b7280',pc2=ds.pmS>=7?'#f97316':'#6b7280';
+        const aBg=ds.amS>=7?'#fff7ed':ds.amS>=5?'#f9fafb':'#f9fafb';
+        const pBg=ds.pmS>=7?'#fff7ed':ds.pmS>=5?'#f9fafb':'#f9fafb';
+        const aBd=ds.amS>=7?'#fed7aa':ds.amS>=5?'#e5e7eb':'#e5e7eb';
+        const pBd=ds.pmS>=7?'#fed7aa':ds.pmS>=5?'#e5e7eb':'#e5e7eb';
+        const dayStr=ds.date.toLocaleDateString('zh-CN',{month:'short',day:'numeric'});
+        trendHtml+='<div class="tr-card"><div class="tr-hdr"><span>'+ds.label+'</span><span class="tr-date">'+dayStr+'</span></div>'+
+          '<div class="tr-section"><div class="tr-sec-hdr">🌅 朝霞</div><div class="tr-bdg" style="background:'+aBg+';border-color:'+aBd+';color:'+ac2+'">'+ds.amS+'<span style="font-size:10px;opacity:0.6">/10</span></div></div>'+
+          '<div class="tr-factors">'+
+          '<div class="tr-f"><span class="tr-fl">高云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.ah)+'%"></div></div><span class="tr-fv">'+Math.round(ds.ah)+'%</span></div>'+
+          '<div class="tr-f"><span class="tr-fl">中云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.am)+'%"></div></div><span class="tr-fv">'+Math.round(ds.am)+'%</span></div>'+
+          '<div class="tr-f"><span class="tr-fl">低云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.al)+'%"></div></div><span class="tr-fv">'+Math.round(ds.al)+'%</span></div>'+
+          '<div class="tr-f"><span class="tr-fl">能见度</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.min(100,Math.round(ds.vv/150))+'%"></div></div><span class="tr-fv">'+Math.round(ds.vv/1000)+'km</span></div>'+
+          '</div></div>'+
+          '<div class="tr-section"><div class="tr-sec-hdr">🌇 晚霞</div><div class="tr-bdg" style="background:'+pBg+';border-color:'+pBd+';color:'+pc2+'">'+ds.pmS+'<span style="font-size:10px;opacity:0.6">/10</span></div></div>'+
+          '<div class="tr-factors">'+
+          '<div class="tr-f"><span class="tr-fl">高云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.ph)+'%"></div></div><span class="tr-fv">'+Math.round(ds.ph)+'%</span></div>'+
+          '<div class="tr-f"><span class="tr-fl">中云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.pm)+'%"></div></div><span class="tr-fv">'+Math.round(ds.pm)+'%</span></div>'+
+          '<div class="tr-f"><span class="tr-fl">低云</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.round(ds.pl)+'%"></div></div><span class="tr-fv">'+Math.round(ds.pl)+'%</span></div>'+
+          '<div class="tr-f"><span class="tr-fl">能见度</span><div class="tr-fb"><div class="tr-ff" style="width:'+Math.min(100,Math.round(ds.vv/150))+'%"></div></div><span class="tr-fv">'+Math.round(ds.vv/1000)+'km</span></div>'+
+          '</div></div>';
+      }
+      trendHtml+='</div>'
+    }
 
     const secs=[
       '<div class="g2 gap">'+hT+hS+'</div>',
