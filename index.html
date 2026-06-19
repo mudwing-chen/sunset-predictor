@@ -458,7 +458,7 @@ const ScoringModule={
  getLevel(s){return s>=9?'excellent':s>=7?'good':s>=5?'fair':s>=3?'poor':'bad'},
  getLabel(s){return s>=9?'绝佳':s>=7?'很好':s>=5?'一般':s>=3?'较差':'很差'},
  genDesc(cl,os,aod,hs,vs,rb,is){
-  const p=[];if(cl>=0.7)p.push('高云 / High丰富');else if(cl<0.3)p.push('缺高云 / High');
+  const p=[];if(cl>=0.7)p.push('高云丰富');else if(cl<0.3)p.push('缺高云');
   if(os>=0.8)p.push('太阳方向 / Sun Dir通透');else if(os<0.4)p.push('太阳方向 / Sun Dir遮挡');
   if(aod>=0.7)p.push('气溶胶适中色彩浓郁');else if(aod<0.3)p.push('大气过净');
   if(hs>=0.7)p.push('湿度适宜 / Humid OK');else if(hs<0.3)p.push('过于干燥 / Very dry');
@@ -532,7 +532,7 @@ const UIModule={
    '<div class="g4 gap-sm">'+'<div class="wb"><div class="wb-v">'+temp+'</div><div class="wb-l">温度 / Temp</div></div><div class="wb"><div class="wb-v">'+hum+'</div><div class="wb-l">湿度 / Humid</div></div><div class="wb"><div class="wb-v">'+wind+'</div><div class="wb-l">风速 / Wind</div></div><div class="wb"><div class="wb-v">'+moonEmoji+'</div><div class="wb-l">月相 '+moonPct+'%</div></div></div>',
    this._ib(),
    this._mw(),
-   tl.length>0?'<div class="tl"><div class="tl-h"><span class="label-xs">云量 / Cloud时间 / Time线 / Cloud Timeline</span><span style="font-size:10px;color:var(--accent);font-weight:500">现在 ▶</span></div><div class="tl-chart">'+tlHtml+'</div><div class="tl-ld"><div><div class="tl-hi" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>高云 / High</div><div><div class="tl-md" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>中云 / Mid</div><div><div class="tl-lo" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>低云 / Low</div></div></div>':'',
+   tl.length>0?'<div class="tl"><div class="tl-h"><span class="label-xs">云量时间线 / Cloud Timeline</span><span style="font-size:10px;color:var(--accent);font-weight:500">现在 ▶</span></div><div class="tl-chart">'+tlHtml+'</div><div class="tl-ld"><div><div class="tl-hi" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>高云 / High</div><div><div class="tl-md" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>中云 / Mid</div><div><div class="tl-lo" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>低云 / Low</div></div></div>':'',
    best?('<div class="fp"><div class="fp-h">'+bestT+'</div>'+this._bf(bestT,best.factors)+'</div>'):'',
    '<div class="hr"><span class="label-xs">明日 / Tomorrow</span></div>',
    '<div class="g2 gap-sm">'+mT+mS+'</div>',
