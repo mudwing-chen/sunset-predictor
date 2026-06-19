@@ -6,7 +6,7 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "3000"],
       "port": 3000,
-      "cwd": "/Users/chenhongyu/文章/code/sunset-predictor"
+      "cwd": "/Users/chenhongyu/文章/code"
     }
   ]
 }
