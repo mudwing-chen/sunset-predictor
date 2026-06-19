@@ -12,9 +12,6 @@
  <link rel="manifest" href="manifest.json">
  <link rel="icon" href="assets/icon.svg">
  <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
- <link rel="preconnect" href="https://fonts.googleapis.com">
- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
  <style>
   :root {
    --bg: #f9fafb;
@@ -281,7 +278,7 @@
  </div>
 
  <script defer src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
- <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+ <script defer src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
  <script defer>
 // ====== Theme ======
 const Theme={
@@ -608,7 +605,6 @@ const App={_dataCache:{},
    c.querySelectorAll('button').forEach(b=>{b.addEventListener('click',()=>{const lat=parseFloat(b.dataset.lat),lng=parseFloat(b.dataset.lng),n=rs[parseInt(b.dataset.idx)].display_name;App.selectSearchResult(lat,lng,n)})})}catch{$('searchResults').innerHTML='<p style="font-size:12px;color:var(--text-quaternary);padding:8px">搜索 / Search失败</p>'}
   });
   $('retryBtn')?.addEventListener('click',()=>{UIModule.hideError();LocationModule.init()});
-t  if('serviceWorker'in navigator)window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{})});
   window.addEventListener('online',()=>{UIModule.hideError();LocationModule.init()});
   window.addEventListener('offline',()=>{UIModule.showError('网络已断开 / Offline')});
   await LocationModule.init()
