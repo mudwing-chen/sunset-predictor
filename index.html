@@ -73,13 +73,14 @@
    background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s,color 0.3s
   }
   .bg-glow{position:fixed;inset:0;z-index:-1;background:var(--glow);transition:background 0.3s}
-  .page{max-width:860px;margin:0 auto;padding:24px 18px 48px}
-  @media(max-width:640px){.page{padding:18px 14px 40px}}
+  .page{max-width:820px;margin:0 auto;padding:24px 16px 48px}
+  @media(min-width:768px){.page{padding:28px 24px 48px;max-width:720px}}
   .label-xs{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:2px}
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .g2{display:grid;grid-template-columns:1fr;gap:10px}
   .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  @media(max-width:640px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}}
+  @media(min-width:640px){.g2{grid-template-columns:1fr 1fr}}
+  @media(max-width:640px){.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}}
   .gap{margin-bottom:18px}.gap-sm{margin-bottom:12px}
   .hr{display:flex;align-items:center;gap:14px;margin:22px 0 14px}
   .hr::after{content:'';flex:1;height:1px;background:var(--border-light)}
@@ -171,9 +172,9 @@
   .tr-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
   .tr-hdr span:first-child{font-size:15px;font-weight:600;color:var(--text)}
   .tr-date{font-size:12px;color:var(--text-tertiary);font-weight:500}
-  .tr-stitle{display:flex;align-items:center;justify-content:space-between;margin:6px 0 4px}
-  .tr-stitle span:first-child{font-size:14px;font-weight:500;color:var(--text-secondary)}
-  .tr-bdg{font-size:18px;font-weight:700;display:flex;align-items:baseline;gap:1px}
+  .tr-stitle{display:flex;align-items:center;justify-content:space-between;margin:8px 0 4px}
+  .tr-stitle span:first-child{font-size:14px;font-weight:500;color:var(--text-secondary);white-space:nowrap}
+  .tr-bdg{font-size:18px;font-weight:700;display:inline-flex;align-items:baseline;gap:1px}
   .tr-bdg-s{font-size:11px;font-weight:400;opacity:0.5;margin-left:1px}
   .tr-bars{display:grid;gap:5px;margin-bottom:6px}
   .tr-b{display:flex;align-items:center;gap:6px}
@@ -479,10 +480,10 @@ const UIModule={
   const wind=w.wind!==undefined?'↗'+Math.round(w.wind):'--';
   const mp=sd.moonPhase?.fraction;const moonEmoji=mp>0.9?'🌕':mp>0.5?'🌔':mp>0.1?'🌒':'🌑';const moonPct=sd.moonPhase?Math.round(sd.moonPhase.fraction*100):'--';
   const hT=this._hc(t,'今日朝霞','🌅'),hS=this._hc(s,'今日晚霞','🌇');
-  const mT=this._mc(tt,'明日 / Tomorrow朝霞','🌅'),mS=this._mc(ts,'明日 / Tomorrow晚霞','🌇');
+  const mT=this._mc(tt,'明日朝霞','🌅'),mS=this._mc(ts,'明日晚霞','🌇');
   const tlHtml=tl.map(h=>{const hh=Math.max(2,h.cloud_cover_high/2),mh=Math.max(2,h.cloud_cover_mid/2),lh=Math.max(2,h.cloud_cover_low/2);return'<div class="tl-c"><div class="tl-b"><div class="tl-hi" style="height:'+hh+'px"></div><div class="tl-md" style="height:'+mh+'px"></div><div class="tl-lo" style="height:'+lh+'px"></div></div><span class="tl-hr">'+String(h.hour).padStart(2,'0')+'</span></div>'}).join('');
   const best=s&&t&&s.score>=t.score?s:t||s||tt||ts;
-  const bestT=best===s?'今日晚霞':best===t?'今日朝霞':best===ts?'明日 / Tomorrow晚霞':'明日 / Tomorrow朝霞';
+  const bestT=best===s?'今日晚霞':best===t?'今日朝霞':best===ts?'明日晚霞':'明日朝霞';
   let trendHtml='';
   if(weather?.daily){
    const dn=['周日','周一','周二','周三','周四','周五','周六'];
@@ -533,7 +534,7 @@ const UIModule={
    this._mw(),
    tl.length>0?'<div class="tl"><div class="tl-h"><span class="label-xs">云量 / Cloud时间 / Time线 / Cloud Timeline</span><span style="font-size:10px;color:var(--accent);font-weight:500">现在 ▶</span></div><div class="tl-chart">'+tlHtml+'</div><div class="tl-ld"><div><div class="tl-hi" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>高云 / High</div><div><div class="tl-md" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>中云 / Mid</div><div><div class="tl-lo" style="display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px"></div>低云 / Low</div></div></div>':'',
    best?('<div class="fp"><div class="fp-h">'+bestT+'</div>'+this._bf(bestT,best.factors)+'</div>'):'',
-   '<div class="hr"><span class="label-xs">明日 / Tomorrow '+(new Date(Date.now()+86400000).getMonth()+1)+'月'+new Date(Date.now()+86400000).getDate()+'日</span></div>',
+   '<div class="hr"><span class="label-xs">明日 / Tomorrow</span></div>',
    '<div class="g2 gap-sm">'+mT+mS+'</div>',
    trendHtml
   ];
@@ -557,7 +558,7 @@ const UIModule={
   for(const[k,v]of Object.entries(f)){const pct=Math.round((v.score||0)*100);let vt='';if(v.value!==null&&v.value!==undefined){vt=k==='aod'?v.value.toFixed(2):k==='visibility'?(v.value/1000).toFixed(0)+'km':k==='aqi'?v.value+'':k==='humidity'?v.value+'%':(k==='cloud'||k==='offset')?v.value+'%':''}if(k==='offset'&&!v.hasData)vt='暂无';h+='<div class="fp-r"><span class="fp-l">'+(l[k]||k)+'</span><div class="fp-b"><div class="fp-f" style="width:'+pct+'%"></div></div><span class="fp-v">'+vt+'</span></div>'}return h
  },
  _sf(t){
-  const m={'今日朝霞':'sunrise-today','今日晚霞':'sunset-today','明日 / Tomorrow朝霞':'sunrise-tomorrow','明日 / Tomorrow晚霞':'sunset-tomorrow'};const k=m[t];if(!k)return;
+  const m={'今日朝霞':'sunrise-today','今日晚霞':'sunset-today','明日朝霞':'sunrise-tomorrow','明日晚霞':'sunset-tomorrow'};const k=m[t];if(!k)return;
   const p=App.getPeriodData(k);if(!p||!p.factors)return;
   const fp=document.querySelector('.fp');if(fp){fp.innerHTML='<div class="fp-h">'+t+'</div>'+this._bf(t,p.factors);fp.scrollIntoView({behavior:'smooth',block:'nearest'})}
  },
