@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作品 · 陈鸿宇</title>
+<link rel="icon" href="/assets/icon.svg">
+<style>
+:root{--bg:#111;--bg2:#1a1a1a;--bg3:#222;--text:#f5f5f7;--text2:#86868b;--text3:#555;--accent:#f5a623;--border:#2a2a2a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;background:rgba(17,17,17,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.05)}
+.nav-l{display:flex;align-items:center;gap:8px}
+.nav-l a{color:var(--text);text-decoration:none;font-size:15px;font-weight:600}
+.nav-r{display:flex;gap:4px}
+.nav-r a{color:var(--text2);text-decoration:none;font-size:13px;padding:8px 14px;border-radius:8px;transition:all .2s;font-weight:500}
+.nav-r a:hover,.nav-r a.active{color:var(--text);background:rgba(255,255,255,0.08)}
+@media(max-width:640px){.nav-r a{padding:8px 8px;font-size:12px}}
+
+.page{padding:80px 24px 40px;max-width:1100px;margin:0 auto}
+.page h1{font-size:28px;font-weight:700;margin-bottom:4px}
+.page .desc{font-size:14px;color:var(--text2);margin-bottom:32px}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-item{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:var(--bg3);cursor:pointer;transition:transform .3s}
+.grid-item:hover{transform:scale(1.02)}
+.grid-item.wide{grid-column:1/-1;aspect-ratio:16/9}
+.grid-item .label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text2);text-align:center;padding:20px}
+.grid-item .overlay{position:absolute;bottom:0;left:0;right:0;padding:20px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,0.7));opacity:0;transition:opacity .3s}
+.grid-item:hover .overlay{opacity:1}
+.grid-item .overlay span{font-size:13px;font-weight:500}
+.grid-item .overlay small{display:block;font-size:11px;color:var(--text2);margin-top:2px}
+@media(max-width:768px){.grid{grid-template-columns:1fr 1fr}.grid-item.wide{grid-column:1/-1}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}}
+
+.back{display:inline-block;color:var(--text2);text-decoration:none;font-size:13px;margin-bottom:24px;padding:6px 12px;border-radius:8px;border:1px solid var(--border)}
+.back:hover{color:var(--text);border-color:var(--text3)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-l"><a href="/">📷 陈鸿宇</a></div>
+  <div class="nav-r">
+    <a href="/">首页</a>
+    <a href="/gallery/" class="active">作品</a>
+    <a href="/tool/">工具</a>
+    <a href="/about/">关于</a>
+  </div>
+</nav>
+
+<div class="page">
+  <a href="/" class="back">← 首页</a>
+  <h1>作品</h1>
+  <p class="desc">拍得不多，但每次按下快门都是想留住那个瞬间。</p>
+
+  <div class="grid">
+    <div class="grid-item wide" style="background:linear-gradient(135deg,#1a1a2e,#2d1b00)">
+      <div class="label">🌄 日落观亭 · 2024.10.26</div>
+      <div class="overlay"><span>日落观亭</span><small>氛围感最好的一张</small></div>
+    </div>
+    <div class="grid-item" style="background:linear-gradient(135deg,#1a2e1a,#002d1b)">
+      <div class="label">✈️ 飞机 & 牵牛花 · 2025.11.22</div>
+      <div class="overlay"><span>飞机 & 牵牛花</span><small>拍出了诗意</small></div>
+    </div>
+    <div class="grid-item" style="background:linear-gradient(135deg,#2d1b00,#1a1a2e)">
+      <div class="label">🌆 城市黄昏 · 2024.10.31</div>
+      <div class="overlay"><span>城市黄昏天际线</span><small>耶稣光</small></div>
+    </div>
+    <div class="grid-item" style="background:linear-gradient(135deg,#1a1a2e,#2d001b)">
+      <div class="label">🌃 雨夜窗景</div>
+      <div class="overlay"><span>雨夜窗景</span><small>电影感 · 情绪最浓</small></div>
+    </div>
+    <div class="grid-item" style="background:linear-gradient(135deg,#002d1b,#1a2e1a)">
+      <div class="label">🌊 水面波纹</div>
+      <div class="overlay"><span>水面波纹</span><small>像油画</small></div>
+    </div>
+    <div class="grid-item" style="background:linear-gradient(135deg,#2d001b,#1a1a2e)">
+      <div class="label">🎆 烟花光轨</div>
+      <div class="overlay"><span>烟花光轨</span><small>光影敏感</small></div>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:40px;font-size:13px;color:var(--text3)">—— 更多照片待上传 ——</p>
+</div>
+
+</body>
+</html>

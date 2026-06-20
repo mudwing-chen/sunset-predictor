@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>关于 · 陈鸿宇</title>
+<link rel="icon" href="/assets/icon.svg">
+<style>
+:root{--bg:#111;--bg2:#1a1a1a;--bg3:#222;--text:#f5f5f7;--text2:#86868b;--text3:#555;--accent:#f5a623;--border:#2a2a2a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;background:rgba(17,17,17,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.05)}
+.nav-l{display:flex;align-items:center;gap:8px}
+.nav-l a{color:var(--text);text-decoration:none;font-size:15px;font-weight:600}
+.nav-r{display:flex;gap:4px}
+.nav-r a{color:var(--text2);text-decoration:none;font-size:13px;padding:8px 14px;border-radius:8px;transition:all .2s;font-weight:500}
+.nav-r a:hover,.nav-r a.active{color:var(--text);background:rgba(255,255,255,0.08)}
+@media(max-width:640px){.nav-r a{padding:8px 8px;font-size:12px}}
+
+.page{padding:80px 24px 40px;max-width:700px;margin:0 auto}
+.back{display:inline-block;color:var(--text2);text-decoration:none;font-size:13px;margin-bottom:24px;padding:6px 12px;border-radius:8px;border:1px solid var(--border)}
+.back:hover{color:var(--text);border-color:var(--text3)}
+
+.about-wrap{display:flex;gap:40px;align-items:start}
+.about-avatar{width:140px;height:140px;border-radius:50%;background:linear-gradient(135deg,#1a1a2e,#2d001b);flex-shrink:0}
+.about-text h1{font-size:28px;font-weight:700;margin-bottom:4px}
+.about-text .role{font-size:14px;color:var(--accent);font-weight:500;margin-bottom:16px}
+
+.bio{font-size:15px;color:var(--text2);line-height:1.8;max-width:500px}
+.bio p{margin-bottom:12px}
+
+.info{margin-top:32px}
+.info h2{font-size:16px;font-weight:600;margin-bottom:12px}
+.info-item{display:flex;gap:12px;margin-bottom:10px;font-size:14px}
+.info-item .k{color:var(--text3);width:60px;flex-shrink:0}
+.info-item .v{color:var(--text2)}
+.info-item a{color:var(--accent);text-decoration:none}
+.info-item a:hover{text-decoration:underline}
+
+@media(max-width:640px){.about-wrap{flex-direction:column;align-items:center;text-align:center}.bio{margin:0 auto}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-l"><a href="/">📷 陈鸿宇</a></div>
+  <div class="nav-r">
+    <a href="/">首页</a>
+    <a href="/gallery/">作品</a>
+    <a href="/tool/">工具</a>
+    <a href="/about/" class="active">关于</a>
+  </div>
+</nav>
+
+<div class="page">
+  <a href="/" class="back">← 首页</a>
+  <div class="about-wrap">
+    <div class="about-avatar"></div>
+    <div class="about-text">
+      <h1>陈鸿宇</h1>
+      <div class="role">📸 摄影社社长</div>
+      <div class="bio">
+        <p>风光摄影爱好者。器材不重要，重要的是知道什么时候该按下快门。</p>
+        <p>偏爱日落时分的暖调、雨夜的安静、光影交错的瞬间。好照片不是滤镜堆出来的，是捕捉到了那一刻本来就有的光。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <h2>联系方式</h2>
+    <div class="info-item"><span class="k">📧 邮箱</span><span class="v"><a href="mailto:mudwing.chen@outlook.com">mudwing.chen@outlook.com</a></span></div>
+    <div class="info-item"><span class="k">🐙 GitHub</span><span class="v"><a href="https://github.com/mudwing-chen" target="_blank">mudwing-chen</a></span></div>
+  </div>
+</div>
+
+</body>
+</html>
