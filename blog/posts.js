@@ -16,6 +16,15 @@ const POSTS = [
 // ===== added: 新文章在此之后添加 =====
 
   {
+    id: 1781961142546,
+    title: "d5c",
+    date: "2026.06.20",
+    tag: "随笔",
+    summary: "zdjd",
+    content: "zdjd"
+  },
+
+  {
     id: 1781960768085,
     title: "disici",
     date: "2026.06.20",
