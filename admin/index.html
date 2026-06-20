@@ -62,10 +62,11 @@ h1{font-size:24px;font-weight:700;margin-bottom:4px}
 
 <div class="login-screen" id="loginScreen">
   <h2>🔐 发布后台</h2>
-  <p class="hint">请输入密码</p>
-  <input type="password" id="passwordInput" placeholder="密码" onkeydown="if(event.key==='Enter')login()">
-  <button class="btn btn-primary" onclick="login()">登录</button>
-  <p class="login-error" id="loginError">密码错误</p>
+  <p class="hint">请输入密码和 GitHub Token</p>
+  <input type="password" id="passwordInput" placeholder="密码" style="margin-bottom:8px" onkeydown="if(event.key==='Enter')login()">
+  <input type="text" id="tokenInput" placeholder="GitHub Token (首次输入后自动保存)" onkeydown="if(event.key==='Enter')login()">
+  <button class="btn btn-primary" onclick="login()" style="margin-top:16px">登录</button>
+  <p class="login-error" id="loginError">密码或 Token 错误</p>
 </div>
 
 <div class="page" id="editorPage" style="display:none">
@@ -120,17 +121,28 @@ h1{font-size:24px;font-weight:700;margin-bottom:4px}
 <script>
 const esc = s => {const d=document.createElement('div');d.textContent=s;return d.innerHTML};
 
+function getToken() {
+  return localStorage.getItem('github_token') || '';
+}
+
 function login() {
   const pw = document.getElementById('passwordInput').value;
-  if (pw === BLOG_CONFIG.password) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('editorPage').style.display = 'block';
-    document.getElementById('dateInput').value = new Date().toISOString().slice(0,10);
-    // Bind image paste
-    document.getElementById('contentInput').addEventListener('paste', handleImagePaste);
-  } else {
+  if (pw !== BLOG_CONFIG.password) {
     document.getElementById('loginError').style.display = 'block';
+    return;
   }
+  const token = document.getElementById('tokenInput').value.trim();
+  if (token) {
+    localStorage.setItem('github_token', token);
+  } else if (!getToken()) {
+    document.getElementById('loginError').textContent = '请填写 GitHub Token';
+    document.getElementById('loginError').style.display = 'block';
+    return;
+  }
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('editorPage').style.display = 'block';
+  document.getElementById('dateInput').value = new Date().toISOString().slice(0,10);
+  document.getElementById('contentInput').addEventListener('paste', handleImagePaste);
 }
 
 function setTag(tag) {
@@ -146,7 +158,7 @@ async function handleImagePaste(e) {
   for (const item of items) {
     if (!item.type.startsWith('image/')) continue;
     e.preventDefault();
-    const file = item.getfile();
+    const file = item.getAsFile();
     if (!file) return;
     await uploadImage(file);
   }
@@ -243,7 +255,7 @@ async function publish() {
 
   if (!title) { showMsg('error', '请填写标题'); return; }
   if (!content) { showMsg('error', '请填写正文'); return; }
-  if (!BLOG_CONFIG.githubToken) { showMsg('error', '请先在 /admin/config.js 中填入 GitHub Token'); return; }
+  if (!getToken()) { showMsg('error', '请先登录并填入 GitHub Token'); return; }
 
   btn.disabled = true;
   btn.textContent = '⏳ 发布中……';
@@ -322,6 +334,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     await githubPut('/blog/posts.js', updatedPosts, '发布文章：' + title);
     await githubPut('/blog/posts/' + slug + '.html', articleHtml, '发布文章页面：' + title);
 
+    // 4. Generate RSS if at least one post
+    const siteUrl = 'https://sunset-predictor-9n9.pages.dev';
+    const allPosts = [];
+    try {
+      const getR = await githubGet('/blog/posts.js');
+      // Parse existing posts from the updated content
+      eval(updatedPosts.replace('const POSTS =', 'allPosts.push(...'));
+    } catch(e) {}
+    if (allPosts.length) {
+      allPosts.sort((a,b) => b.date.localeCompare(a.date));
+      const rssItems = allPosts.map(p => {
+        const ps = p.title.toLowerCase().replace(/[^\w一-龥-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'') || 'post';
+        const pd = p.date.replace(/\./g, '-');
+        return `    <item>
+      <title>${esc(p.title)}</title>
+      <link>${siteUrl}/blog/posts/${ps}.html</link>
+      <description>${esc(p.summary)}</description>
+      <pubDate>${new Date(pd).toUTCString()}</pubDate>
+      <category>${p.tag}</category>
+    </item>`;
+      }).join('\n');
+      const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>陈鸿宇 · 摄影博客</title>
+    <link>${siteUrl}</link>
+    <description>用镜头记录光的形状</description>
+    <language>zh-CN</language>
+    <atom:link href="${siteUrl}/rss.xml" rel="self" type="application/rss+xml"/>
+${rssItems}
+  </channel>
+</rss>`;
+      await githubPut('/rss.xml', rssXml, '更新 RSS');
+    }
+
     showMsg('success', `✅ 发布成功！<br><a href="/blog/" target="_blank">查看博客列表 →</a><br><a href="/blog/posts/${slug}.html" target="_blank">查看文章详情 →</a>`);
     document.getElementById('titleInput').value = '';
     document.getElementById('contentInput').value = '';
@@ -340,7 +387,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 async function githubGet(path) {
   const url = 'https://api.github.com/repos/' + BLOG_CONFIG.repoOwner + '/' + BLOG_CONFIG.repoName + '/contents' + path + '?ref=' + BLOG_CONFIG.branch;
   const r = await fetch(url, {
-    headers: { 'Authorization': 'Bearer ' + BLOG_CONFIG.githubToken, 'Accept': 'application/vnd.github.v3+json' }
+    headers: { 'Authorization': 'Bearer ' + getToken(), 'Accept': 'application/vnd.github.v3+json' }
   });
   if (!r.ok) {
     if (r.status === 404) throw new Error('文件不存在');
@@ -363,7 +410,7 @@ async function githubPut(path, content, message) {
   } catch(e) {}
   const r = await fetch(url, {
     method: 'PUT',
-    headers: { 'Authorization': 'Bearer ' + BLOG_CONFIG.githubToken, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    headers: { 'Authorization': 'Bearer ' + getToken(), 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
   if (!r.ok) {
