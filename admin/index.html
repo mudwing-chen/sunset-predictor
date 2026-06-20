@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>发布后台 · 陈鸿宇</title>
+<link rel="icon" href="/assets/icon.svg">
+<style>
+:root{--bg:#111;--bg2:#1a1a1a;--bg3:#222;--text:#f5f5f7;--text2:#86868b;--text3:#555;--accent:#f5a623;--green:#34d399;--red:#f87171;--border:#2a2a2a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
+.page{max-width:720px;margin:0 auto;padding:40px 24px}
+
+h1{font-size:24px;font-weight:700;margin-bottom:4px}
+.desc{font-size:13px;color:var(--text2);margin-bottom:24px}
+
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:0.5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px;outline:none;font-family:inherit;transition:border .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group textarea{min-height:300px;resize:vertical;line-height:1.8;font-size:15px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
+
+.btn{padding:12px 24px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-primary{background:var(--accent);color:#111}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,166,35,0.3)}
+.btn-secondary{background:var(--bg3);color:var(--text2)}
+.btn-secondary:hover{background:var(--border);color:var(--text)}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
+.actions{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+
+.msg{padding:14px 16px;border-radius:10px;font-size:13px;margin-top:16px;display:none;line-height:1.6}
+.msg.success{display:block;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:var(--green)}
+.msg.error{display:block;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--red)}
+.msg a{color:var(--accent);text-decoration:underline}
+
+#preview{display:none;margin-top:24px;padding:24px;border-radius:12px;background:var(--bg2);border:1px solid var(--border)}
+#preview.show{display:block}
+#preview h2{font-size:22px;margin-bottom:6px}
+#preview .pm{font-size:12px;color:var(--text3);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+#preview .body{font-size:16px;line-height:2;color:var(--text2)}
+#preview .body p{margin-bottom:1em}
+#preview .body img{max-width:100%;border-radius:8px;margin:12px 0}
+
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.login-screen h2{font-size:22px;margin-bottom:8px}
+.login-screen .hint{font-size:13px;color:var(--text3);margin-bottom:20px}
+.login-screen input{padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:15px;width:240px;outline:none;font-family:inherit}
+.login-screen input:focus{border-color:var(--accent)}
+.login-screen .btn{margin-top:12px}
+.login-error{font-size:13px;color:var(--red);margin-top:8px;display:none}
+
+.tag-select{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.tag-select button{padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit;transition:all .2s}
+.tag-select button:hover,.tag-select button.active{color:var(--accent);border-color:var(--accent)}
+
+.img-status{font-size:12px;color:var(--text3);margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <h2>🔐 发布后台</h2>
+  <p class="hint">请输入密码</p>
+  <input type="password" id="passwordInput" placeholder="密码" onkeydown="if(event.key==='Enter')login()">
+  <button class="btn btn-primary" onclick="login()">登录</button>
+  <p class="login-error" id="loginError">密码错误</p>
+</div>
+
+<div class="page" id="editorPage" style="display:none">
+  <a href="/" style="color:var(--text2);text-decoration:none;font-size:13px;margin-bottom:24px;display:inline-block">← 返回首页</a>
+  <h1>✍️ 写文章</h1>
+  <p class="desc">填写内容，预览没问题就发布</p>
+
+  <div class="form-group">
+    <label>标题</label>
+    <input type="text" id="titleInput" placeholder="文章标题">
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>日期</label>
+      <input type="date" id="dateInput">
+    </div>
+    <div class="form-group">
+      <label>标签</label>
+      <input type="text" id="tagInput" placeholder="自定义标签" style="margin-top:6px">
+      <div class="tag-select" id="tagPresets">
+        <button data-tag="随笔" onclick="setTag('随笔')">随笔</button>
+        <button data-tag="摄影" onclick="setTag('摄影')">摄影</button>
+        <button data-tag="教程" onclick="setTag('教程')">教程</button>
+        <button data-tag="器材" onclick="setTag('器材')">器材</button>
+        <button data-tag="游记" onclick="setTag('游记')">游记</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>正文 <span style="color:var(--text3);font-weight:400">（粘贴图片自动上传至 GitHub，显示为 ![](url) 即可插入）</span></label>
+    <textarea id="contentInput" placeholder="开始写吧…&#10;&#10;空一行 = 新段落&#10;粘贴图片 = 自动上传并插入"></textarea>
+    <div class="img-status" id="imgStatus"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="preview()">👁️ 预览</button>
+    <button class="btn btn-primary" id="publishBtn" onclick="publish()">📤 发布</button>
+  </div>
+
+  <div class="msg" id="msgBox"></div>
+
+  <div id="preview">
+    <h2 id="previewTitle"></h2>
+    <div class="pm"><span id="previewDate"></span> · <span id="previewTag"></span></div>
+    <div class="body" id="previewBody"></div>
+  </div>
+</div>
+
+<script src="/admin/config.js"></script>
+<script>
+const esc = s => {const d=document.createElement('div');d.textContent=s;return d.innerHTML};
+
+function login() {
+  const pw = document.getElementById('passwordInput').value;
+  if (pw === BLOG_CONFIG.password) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('editorPage').style.display = 'block';
+    document.getElementById('dateInput').value = new Date().toISOString().slice(0,10);
+    // Bind image paste
+    document.getElementById('contentInput').addEventListener('paste', handleImagePaste);
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function setTag(tag) {
+  document.getElementById('tagInput').value = tag;
+  document.querySelectorAll('#tagPresets button').forEach(b => {
+    b.classList.toggle('active', b.dataset.tag === tag);
+  });
+}
+
+// ===== 图片粘贴自动上传 =====
+async function handleImagePaste(e) {
+  const items = e.clipboardData.items;
+  for (const item of items) {
+    if (!item.type.startsWith('image/')) continue;
+    e.preventDefault();
+    const file = item.getfile();
+    if (!file) return;
+    await uploadImage(file);
+  }
+}
+
+async function uploadImage(file) {
+  const status = document.getElementById('imgStatus');
+  status.textContent = '⏫ 上传图片中…';
+
+  try {
+    const reader = new FileReader();
+    const base64 = await new Promise((resolve, reject) => {
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const ext = file.name.match(/\.\w+$/)?.[0] || '.png';
+    const filename = Date.now() + ext;
+    const path = '/assets/blog/' + filename;
+
+    await githubPut(path, atob(base64), '上传图片：' + filename);
+
+    const imgUrl = `https://raw.githubusercontent.com/${BLOG_CONFIG.repoOwner}/${BLOG_CONFIG.repoName}/${BLOG_CONFIG.branch}${path}`;
+    const textarea = document.getElementById('contentInput');
+    const cursor = textarea.selectionStart;
+    const before = textarea.value.slice(0, cursor);
+    const after = textarea.value.slice(cursor);
+    textarea.value = before + `![图](${imgUrl})` + after;
+    textarea.selectionStart = textarea.selectionEnd = cursor + (`![图](${imgUrl})`).length;
+    textarea.focus();
+
+    status.textContent = '✅ 图片已上传并插入';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = '❌ 上传失败：' + e.message;
+  }
+}
+
+// ===== 预览 =====
+function preview() {
+  const title = document.getElementById('titleInput').value.trim() || '(无标题)';
+  const date = document.getElementById('dateInput').value;
+  const tag = document.getElementById('tagInput').value.trim() || '随笔';
+  const content = document.getElementById('contentInput').value;
+
+  document.getElementById('previewTitle').textContent = title;
+  document.getElementById('previewDate').textContent = date;
+  document.getElementById('previewTag').textContent = tag;
+
+  const paragraphs = content.split(/\n\n+/).map(b => b.trim()).filter(Boolean);
+  let html = paragraphs.map(para => {
+    const lines = para.split('\n').filter(Boolean);
+    if (lines.length <= 1) return `<p>${esc(lines[0])}</p>`;
+    return lines.map(l => l.trim() ? `<p>${esc(l)}</p>` : '<br>').join('');
+  }).join('');
+  html = html.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1">');
+
+  document.getElementById('previewBody').innerHTML = html;
+  document.getElementById('preview').classList.add('show');
+  document.getElementById('preview').scrollIntoView({behavior:'smooth'});
+}
+
+function slugify(text) {
+  text = text.replace(/\.html?$/i, '');
+  let slug = text.toLowerCase();
+  slug = slug.replace(/[^\w一-龥-]/g, '-');
+  slug = slug.replace(/-+/g, '-').replace(/^-|-$/g, '');
+  return slug || 'post';
+}
+
+function textToHtml(content) {
+  const paragraphs = content.split(/\n\n+/).map(b => b.trim()).filter(Boolean);
+  let html = paragraphs.map(para => {
+    const lines = para.split('\n').filter(Boolean);
+    if (lines.length <= 1) return `<p>${esc(lines[0])}</p>`;
+    return lines.map(l => l.trim() ? `<p>${esc(l)}</p>` : '<br>').join('');
+  }).join('');
+  html = html.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1">');
+  return html;
+}
+
+// ===== 发布 =====
+async function publish() {
+  const btn = document.getElementById('publishBtn');
+  const msg = document.getElementById('msgBox');
+  msg.className = 'msg';
+  msg.style.display = 'none';
+
+  const title = document.getElementById('titleInput').value.trim();
+  const date = document.getElementById('dateInput').value;
+  const tag = document.getElementById('tagInput').value.trim() || '随笔';
+  const content = document.getElementById('contentInput').value.trim();
+
+  if (!title) { showMsg('error', '请填写标题'); return; }
+  if (!content) { showMsg('error', '请填写正文'); return; }
+  if (!BLOG_CONFIG.githubToken) { showMsg('error', '请先在 /admin/config.js 中填入 GitHub Token'); return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ 发布中……';
+
+  try {
+    const dateFormatted = date.replace(/-/g, '.');
+    const slug = slugify(title);
+    const postId = Date.now();
+    const summary = content.replace(/\n+/g, ' ').slice(0, 120) + (content.length > 120 ? '…' : '');
+
+    // 1. Read & update posts.js
+    let postsJsContent = '';
+    try {
+      const getR = await githubGet('/blog/posts.js');
+      postsJsContent = atob(getR.content);
+    } catch(e) {
+      postsJsContent = 'const POSTS = [\n];\n\n// ===== added: 新文章在此之后添加 =====\n';
+    }
+
+    const newEntry = `\n  {\n    id: ${postId},\n    title: ${JSON.stringify(title)},\n    date: "${dateFormatted}",\n    tag: "${tag}",\n    summary: ${JSON.stringify(summary)},\n    content: ${JSON.stringify(content)}\n  }`;
+    const updatedPosts = postsJsContent.replace('// ===== added: 新文章在此之后添加 =====', '// ===== added: 新文章在此之后添加 =====\n' + newEntry + ',');
+
+    // 2. Generate static article page
+    const bodyHtml = textToHtml(content);
+    const articleHtml = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(title)} · 陈鸿宇</title>
+<link rel="icon" href="/assets/icon.svg">
+<style>
+:root{--bg:#111;--bg2:#1a1a1a;--bg3:#222;--text:#f5f5f7;--text2:#86868b;--text3:#555;--accent:#f5a623;--border:#2a2a2a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;background:rgba(17,17,17,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.05)}
+.nav-l a{color:#f5f5f7;text-decoration:none;font-size:15px;font-weight:600}
+.nav-r{display:flex;gap:4px}
+.nav-r a{color:#86868b;text-decoration:none;font-size:13px;padding:8px 14px;border-radius:8px}
+.nav-r a:hover{color:#f5f5f7;background:rgba(255,255,255,0.08)}
+@media(max-width:640px){.nav-r a{padding:8px 6px;font-size:11px}}
+.page{max-width:700px;margin:0 auto;padding:80px 24px 40px}
+.back{display:inline-block;color:var(--text2, #86868b);text-decoration:none;font-size:13px;margin-bottom:24px;padding:6px 12px;border-radius:8px;border:1px solid #2a2a2a}
+.post-title{font-size:clamp(24px,4vw,32px);font-weight:700;line-height:1.4;margin-bottom:8px;color:#f5f5f7}
+.post-meta{display:flex;align-items:center;gap:12px;font-size:13px;color:#555;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid #2a2a2a}
+.post-tag{padding:2px 8px;border-radius:4px;background:rgba(245,166,35,0.15);color:#f5a623;font-size:10px;font-weight:600;letter-spacing:1px}
+.post-content{font-size:17px;line-height:2;color:#86868b}
+.post-content p{margin-bottom:1.2em}
+.post-content br{content:'';display:block;margin:0.6em 0}
+.post-content img{max-width:100%;border-radius:12px;margin:24px 0;display:block}
+</style>
+</head>
+<body>
+<nav class="nav" style="display:flex;align-items:center;justify-content:space-between">
+  <div class="nav-l"><a href="/">📷 陈鸿宇</a></div>
+  <div class="nav-r">
+    <a href="/">首页</a>
+    <a href="/gallery/">作品</a>
+    <a href="/blog/">博客</a>
+    <a href="/tool/">工具</a>
+    <a href="/about/">关于</a>
+  </div>
+</nav>
+<div class="page">
+  <a href="/blog/" class="back">← 返回博客</a>
+  <article>
+    <h1 class="post-title">${esc(title)}</h1>
+    <div class="post-meta"><span class="post-tag">${esc(tag)}</span><span>${dateFormatted}</span></div>
+    <div class="post-content">${bodyHtml}</div>
+  </article>
+</div>
+</body>
+</html>`;
+
+    // 3. Commit posts.js + article page
+    await githubPut('/blog/posts.js', updatedPosts, '发布文章：' + title);
+    await githubPut('/blog/posts/' + slug + '.html', articleHtml, '发布文章页面：' + title);
+
+    showMsg('success', `✅ 发布成功！<br><a href="/blog/" target="_blank">查看博客列表 →</a><br><a href="/blog/posts/${slug}.html" target="_blank">查看文章详情 →</a>`);
+    document.getElementById('titleInput').value = '';
+    document.getElementById('contentInput').value = '';
+    document.getElementById('tagInput').value = '';
+    document.getElementById('preview').classList.remove('show');
+    document.querySelectorAll('#tagPresets button').forEach(b => b.classList.remove('active'));
+
+  } catch(e) {
+    showMsg('error', '发布失败：' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📤 发布';
+  }
+}
+
+async function githubGet(path) {
+  const url = 'https://api.github.com/repos/' + BLOG_CONFIG.repoOwner + '/' + BLOG_CONFIG.repoName + '/contents' + path + '?ref=' + BLOG_CONFIG.branch;
+  const r = await fetch(url, {
+    headers: { 'Authorization': 'Bearer ' + BLOG_CONFIG.githubToken, 'Accept': 'application/vnd.github.v3+json' }
+  });
+  if (!r.ok) {
+    if (r.status === 404) throw new Error('文件不存在');
+    if (r.status === 401) throw new Error('GitHub Token 无效，请检查');
+    throw new Error('GitHub API 错误 (' + r.status + ')');
+  }
+  return await r.json();
+}
+
+async function githubPut(path, content, message) {
+  const url = 'https://api.github.com/repos/' + BLOG_CONFIG.repoOwner + '/' + BLOG_CONFIG.repoName + '/contents' + path;
+  const body = {
+    message: message,
+    content: btoa(unescape(encodeURIComponent(content))),
+    branch: BLOG_CONFIG.branch
+  };
+  try {
+    const existing = await githubGet(path);
+    body.sha = existing.sha;
+  } catch(e) {}
+  const r = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + BLOG_CONFIG.githubToken, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(()=>({}));
+    throw new Error(err.message || 'GitHub API 错误 (' + r.status + ')');
+  }
+  return await r.json();
+}
+
+function showMsg(type, text) {
+  const msg = document.getElementById('msgBox');
+  msg.className = 'msg ' + type;
+  msg.innerHTML = text;
+  msg.style.display = 'block';
+}
+</script>
+</body>
+</html>

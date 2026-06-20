@@ -59,6 +59,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 
 .footer{padding:40px 24px;text-align:center;border-top:1px solid var(--border);font-size:12px;color:var(--text3);max-width:1100px;margin:0 auto}
 .footer a{color:var(--text2);text-decoration:none}
+
+.post-list{display:grid;gap:12px}
+.post-card{display:block;padding:16px;border-radius:12px;background:var(--bg2);border:1px solid var(--border);text-decoration:none;color:var(--text);transition:all .2s}
+.post-card:hover{border-color:var(--text3);transform:translateY(-2px)}
+.post-card .meta{display:flex;align-items:center;gap:10px;margin-bottom:4px;font-size:11px}
+.post-card .tag{padding:2px 8px;border-radius:4px;background:rgba(245,166,35,0.15);color:var(--accent);font-size:10px;font-weight:600;letter-spacing:1px}
+.post-card .date{color:var(--text3)}
+.post-card h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.post-card p{font-size:12px;color:var(--text2);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -68,6 +77,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
   <div class="nav-r">
     <a href="/" class="active">首页</a>
     <a href="/gallery/">作品</a>
+    <a href="/blog/">博客</a>
     <a href="/tool/">工具</a>
     <a href="/about/">关于</a>
   </div>
@@ -113,6 +123,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     </div>
   </section>
 
+  <!-- Blog preview -->
+  <section class="section" id="blogPreview" style="display:none">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h2 class="section-h2" style="margin-bottom:0">最新文章</h2>
+        <p class="section-desc" style="margin-bottom:0">一些想记录下来的瞬间。</p>
+      </div>
+      <a href="/blog/" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:500">全部 →</a>
+    </div>
+    <div class="post-list" id="blogPreviewList"></div>
+  </section>
+
   <section class="section" style="padding-top:0">
     <div class="tool-card">
       <h3>🌅 朝霞晚霞预测工具</h3>
@@ -143,6 +165,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
   <p>© 2026 陈鸿宇 · 用镜头记录光的形状</p>
   <div><a href="mailto:mudwing.chen@outlook.com">mudwing.chen@outlook.com</a></div>
 </footer>
+
+<script src="/blog/posts.js"></script>
+<script>
+// Show latest 2 posts on homepage
+const latest = [...POSTS].sort((a,b) => b.date.localeCompare(a.date)).slice(0, 2);
+if (latest.length) {
+  const el = document.getElementById('blogPreview');
+  el.style.display = 'block';
+  document.getElementById('blogPreviewList').innerHTML = latest.map(p => `
+    <a class="post-card" href="/blog/posts/${slugify(p.title)}.html">
+      <div class="meta">
+        <span class="tag">${esc(p.tag)}</span>
+        <span class="date">${p.date}</span>
+      </div>
+      <h3>${esc(p.title)}</h3>
+      <p>${esc(p.summary)}</p>
+    </a>
+  `).join('');
+}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function slugify(text){let s=text.toLowerCase();s=s.replace(/[^\w一-龥-]/g,'-');s=s.replace(/-+/g,'-').replace(/^-|-$/g,'');return s||'post'}
+</script>
 
 </body>
 </html>
