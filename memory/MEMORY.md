@@ -1,0 +1,3 @@
+- [user-hardware](user_hardware.md) — M1 MacBook 8GB RAM + 256GB/1TB SSDs, suitable local LLM models
+- [user-chenhongyu](user_chenhongyu.md) — 浊雁（陈鸿宇），17岁高二，写作4年，擅长白描散文与暗喻诗，核心意象为星月/新月，与三体对话，曾被学校要求删文，身世深重
+- [user-tools](user_tools.md) — 已安装 BibiGPT + bibigpt-skill，Claude Code 可观看/总结抖音等中文视频
