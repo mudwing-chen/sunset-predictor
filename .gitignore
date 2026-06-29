@@ -1,3 +1,4 @@
 /admin/config.js
 .vercel
 .env*
+.DS_Store
