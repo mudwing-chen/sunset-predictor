@@ -1,1 +1,3 @@
 /admin/config.js
+.vercel
+.env*
